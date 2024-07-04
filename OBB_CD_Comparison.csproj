@@ -30,7 +30,4 @@
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Users\Skuta\Documents\free-time\Programmering\monogame-repos\OBB_CD_Comparison\OBB_CD_Comparison\.editorconfig" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="C:\Users\Skuta\Documents\free-time\Programmering\monogame-repos\OBB_CD_Comparison\OBB_CD_Comparison\.editorconfig" />
-  </ItemGroup>
 </Project>
