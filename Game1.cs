@@ -10,6 +10,8 @@ namespace OBB_CD_Comparison
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Controller controller;
+        public static int ScreenWidth;
+        public static int ScreenHeight;
 
         public Game1()
         {
@@ -21,20 +23,28 @@ namespace OBB_CD_Comparison
         protected override void Initialize()
         {
             //Add your initialization logic here
-
+            _graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
+            ScreenWidth = _graphics.PreferredBackBufferWidth;
+            ScreenHeight = _graphics.PreferredBackBufferHeight;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             // use this and Content to load your game content here
+
+            _graphics.ApplyChanges();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
             controller = new Controller();
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100)));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
-            
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700)));
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700)));
+
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -50,8 +60,8 @@ namespace OBB_CD_Comparison
         {
             // Add your drawing code here
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            //spriteBatch.Begin(transformMatrix: Player.Camera.Transform);S
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(transformMatrix: controller.Camera.Transform);
+           // _spriteBatch.Begin();
                 controller.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
