@@ -14,17 +14,7 @@ namespace OBB_CD_Comparison
         public static float REPULSIONDISTANCE = 100;
         public Entity(Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, float elasticity = 1) : base(position, rotation, mass, thrust, friction) { }
         public abstract bool Contains(Vector2 point);
-        //public abstract IControllable ControllableContainingInSpace(Vector2 position, Matrix transform);
-        //public abstract bool CollidesWith(IIntersectable c);
         public abstract void Draw(SpriteBatch sb);
-        //public abstract void Collide(IControllable c);
-        public virtual void Shoot(GameTime gameTime)
-        {
-        }/*
-        public virtual void MoveTo(Vector2 position)
-        {
-            Position = position;
-        }*/
         public virtual void ApplyRepulsion(Entity otherEntity)
         {
             TotalExteriorForce += Mass * CalculateGravitationalRepulsion(this, otherEntity);
@@ -42,11 +32,5 @@ namespace OBB_CD_Comparison
             }
             return Vector2.Zero;
         }
-        /**
-        public virtual void InteractWith(List<IControllable> controllers)
-        {
-            foreach (IControllable c in controllers)
-                Collide(c);
-        }*/
     }
 }

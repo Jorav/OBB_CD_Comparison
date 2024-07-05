@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace OBB_CD_Comparison
 {
@@ -8,7 +9,7 @@ namespace OBB_CD_Comparison
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private WorldEntity we;
+        private List<WorldEntity> entities;
 
         public Game1()
         {
@@ -29,7 +30,9 @@ namespace OBB_CD_Comparison
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
-            we = new WorldEntity(textureParticle, new Vector2(100, 100));
+            entities = new List<WorldEntity>();
+            entities.Add(new WorldEntity(textureParticle, new Vector2(100, 100)));
+            entities.Add(new WorldEntity(textureParticle, new Vector2(200, 200)));
             // TODO: use this.Content to load your game content here
         }
 
@@ -39,7 +42,8 @@ namespace OBB_CD_Comparison
                 Exit();
 
             // TODO: Add your update logic here
-            we.Update(gameTime);
+            foreach(WorldEntity we in entities)
+                we.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -49,7 +53,8 @@ namespace OBB_CD_Comparison
             //spriteBatch.Begin(transformMatrix: Player.Camera.Transform);
             _spriteBatch.Begin();
             // TODO: Add your drawing code here
-            we.Draw(_spriteBatch);
+            foreach(WorldEntity we in entities)
+                we.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
         }

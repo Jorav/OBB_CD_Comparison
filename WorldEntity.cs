@@ -79,11 +79,6 @@ namespace OBB_CD_Comparison
                 TotalExteriorForce += Physics.CalculateCollissionRepulsion(Position, e.Position, Velocity * Mass, e.Velocity * e.Mass);
                 TotalExteriorForce += Physics.CalculateOverlapRepulsion(Position, e.Position, Radius) * (e.Mass + Mass) / 2;
             }
-            else
-            {
-                Vector2 distanceBeforeMoving = Position - Velocity - (e.Position - e.Velocity);
-                Vector2 distance = Position - e.Position;
-            }
         }
 
         public virtual void HandleCollision(WorldEntity eOther, bool passesThroughFromBack = false, bool passesThroughFromFront = false)
