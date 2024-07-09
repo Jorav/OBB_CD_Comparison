@@ -108,16 +108,6 @@ namespace OBB_CD_Comparison
             DR = Position + Vector2.Transform(-Origin + height + width, rotationMatrix);
             UR = Position + Vector2.Transform(-Origin + width, rotationMatrix);
         }
-        private void UpdateScale()
-        {
-            Matrix rotationMatrix = Matrix.CreateRotationZ(rotation);
-            Vector2 height = new Vector2(0, Height);
-            Vector2 width = new Vector2(Width, 0);
-            UL = Position + Vector2.Transform(-Origin, rotationMatrix);
-            DL = Position + Vector2.Transform(-Origin + height, rotationMatrix);
-            DR = Position + Vector2.Transform(-Origin + height + width, rotationMatrix);
-            UR = Position + Vector2.Transform(-Origin + width, rotationMatrix);
-        }
 
         public bool Contains(Vector2 position)
         {
@@ -125,32 +115,6 @@ namespace OBB_CD_Comparison
             Vector2 AD = DL - UL;
             Vector2 AB = UR - UL;
             return 0 <= Vector2.Dot(AM, AB) && Vector2.Dot(AM, AB) <= Vector2.Dot(AB, AB) && 0 <= Vector2.Dot(AM, AD) && Vector2.Dot(AM, AD) <= Vector2.Dot(AD, AD);
-        }
-
-        public bool CollidesWithRectangle(CollidableRectangle r)
-        {
-            bool collides = true;
-            Vector2[] axes = GenerateAxes(r);
-            float[] scalarA = new float[4];
-            float[] scalarB = new float[4];
-            foreach (Vector2 axis in axes)
-            {
-                scalarA[0] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(UL, axis) / axis.LengthSquared()));
-                scalarA[1] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(DL, axis) / axis.LengthSquared()));
-                scalarA[2] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(DR, axis) / axis.LengthSquared()));
-                scalarA[3] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(UR, axis) / axis.LengthSquared()));
-                scalarB[0] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.UL, axis) / axis.LengthSquared()));
-                scalarB[1] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.DL, axis) / axis.LengthSquared()));
-                scalarB[2] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.DR, axis) / axis.LengthSquared()));
-                scalarB[3] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.UR, axis) / axis.LengthSquared()));
-                if (scalarB.Max() < scalarA.Min() + 1 || scalarA.Max() < scalarB.Min() + 1)
-                    collides = false;
-            }/*
-            if(!collides && stretchedRectangle != null)
-            {
-                return stretchedRectangle.CollidesWithRectangle(r);
-            }*/
-            return collides;
         }
         private Vector2[] GenerateAxes(CollidableRectangle r)
         {

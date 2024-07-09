@@ -43,7 +43,7 @@ namespace OBB_CD_Comparison
         public Controller(List<WorldEntity> controllables)
         {
             SetEntities(controllables);
-            Camera = new Camera(this, true);
+            Camera = new Camera(this);
             Camera.AutoAdjustZoom = true;
             Camera.Position = Position;
         }
@@ -53,7 +53,7 @@ namespace OBB_CD_Comparison
             if (position == null)
                 position = Vector2.Zero;
             SetEntities(new List<WorldEntity>());
-            Camera = new Camera(this, false);
+            Camera = new Camera(this);
             Camera.AutoAdjustZoom = true;
             Camera.Position = Position;
         }
@@ -169,7 +169,7 @@ namespace OBB_CD_Comparison
             {
                 foreach (WorldEntity c2 in Entities)//TODO: only allow IsCollidable to affect this?
                 {
-                    if (c1 != c2 && c1 is Entity e1 && c2 is Entity e2)
+                    if (c1 != c2 && c1 is WorldEntity e1 && c2 is WorldEntity e2)
                         e1.ApplyRepulsion(e2);
                 }
             }

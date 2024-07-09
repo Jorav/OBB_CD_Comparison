@@ -15,26 +15,12 @@ namespace OBB_CD_Comparison
         public float Zoom { get; set; }
         public float Width { get { return Game1.ScreenWidth / Zoom; } }
         public float Height { get { return Game1.ScreenHeight / Zoom; } }
-        private bool inBuildScreen;
-        public bool InBuildScreen
-        {
-            get { return inBuildScreen; }
-            set
-            {
-                if (value)
-                    Zoom = BuildMenuZoom;
-                else
-                    Zoom = GameZoom;
-                inBuildScreen = value;
-            }
-        }
         public bool AutoAdjustZoom { get; set; }
-        public float BuildMenuZoom { get { if (Controller != null) return (Game1.ScreenHeight) / (2 * Controller.Radius + Game1.ScreenHeight / 8); else return 1; } }
-        public float GameZoom { get { if (Controller != null) return Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
+        public float GameZoom { get { if (Controller != null) return 1.3f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
         public Controller Controller { get; set; }
         private float zoomSpeed;
 
-        public Camera([OptionalAttribute] Controller controller, bool inBuildScreen = false, float zoomSpeed = 0.02f)
+        public Camera([OptionalAttribute] Controller controller, float zoomSpeed = 0.1f)
         {
             if (controller != null)
             {
@@ -45,9 +31,9 @@ namespace OBB_CD_Comparison
                 Position = Vector2.Zero;
             PreviousPosition = Position;
             Rotation = 0;
-            InBuildScreen = inBuildScreen;
+            Zoom = GameZoom;
             this.zoomSpeed = zoomSpeed;
-            AutoAdjustZoom = false;
+            AutoAdjustZoom = true;
             UpdateTransformMatrix();
         }
 
@@ -58,14 +44,7 @@ namespace OBB_CD_Comparison
                 Position = Controller.Position;
             if (AutoAdjustZoom)
             {
-                if (InBuildScreen)
-                {
-                    AdjustZoom(BuildMenuZoom);
-                }
-                else
-                {
-                    AdjustZoom(GameZoom);
-                }
+                AdjustZoom(GameZoom);
             }
 
             Rotation = 0;

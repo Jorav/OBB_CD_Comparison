@@ -9,7 +9,6 @@ namespace OBB_CD_Comparison
     {
         public virtual float Mass { get; set; }
         public virtual float Thrust { get; set; }
-        // protected float turnSpeed; //TODO: Implement this?
         public virtual Vector2 Position { get; set; }
         protected Vector2 position;
         public virtual float Rotation { get; set; }
@@ -90,14 +89,6 @@ namespace OBB_CD_Comparison
                 Rotation = (float)Math.Atan(position.Y / position.X);
             else
                 Rotation = (float)Math.Atan(position.Y / position.X) - MathHelper.ToRadians(180);
-        }
-
-        public virtual object Clone()
-        {
-            Movable mNew = (Movable)this.MemberwiseClone();
-            mNew.Velocity = Vector2.Zero;
-            mNew.TotalExteriorForce = Vector2.Zero;
-            return mNew;
         }
     }
 }

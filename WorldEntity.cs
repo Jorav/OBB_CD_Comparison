@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace OBB_CD_Comparison
 {
-    public class WorldEntity : Entity
+    public class WorldEntity : Movable
     {
         #region Properties
         protected Sprite sprite = null;
@@ -43,8 +43,9 @@ namespace OBB_CD_Comparison
         protected Vector2 origin;
         public float Width { get { return sprite.Width; } }
         public float Height { get { return sprite.Height; } }
-        public override float Radius { get { return collisionDetector.Radius; } }
-        public bool IsFiller { get; set; }
+        public float Radius { get { return collisionDetector.Radius; } }
+        public bool IsCollidable { get; set; }
+        public static float REPULSIONDISTANCE = 100;
         #endregion
         public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
         {
@@ -56,7 +57,7 @@ namespace OBB_CD_Comparison
             Origin = new Vector2(Width / 2, Height / 2);
         }
         #region Methods
-        public override void Draw(SpriteBatch sb)
+        public void Draw(SpriteBatch sb)
         {
             sprite.Draw(sb);
         }
@@ -66,7 +67,7 @@ namespace OBB_CD_Comparison
             base.Update(gameTime);
         }
 
-        public override bool Contains(Vector2 point)
+        public bool Contains(Vector2 point)
         {
             return IsCollidable && collisionDetector.Contains(point);
         }
@@ -76,20 +77,41 @@ namespace OBB_CD_Comparison
             //collision direct
             if (CollidesWith(e))
             {
-                TotalExteriorForce += Physics.CalculateCollissionRepulsion(Position, e.Position, Velocity * Mass, e.Velocity * e.Mass);
-                TotalExteriorForce += Physics.CalculateOverlapRepulsion(Position, e.Position, Radius) * (e.Mass + Mass) / 2;
-            }
-        }
+                //collission repulsion
+                Vector2 vectorFromOther = e.Position - position;
+                float distance = vectorFromOther.Length();
+                vectorFromOther.Normalize();
+                Vector2 collissionRepulsion = 0.5f * Vector2.Normalize(-vectorFromOther) * (Vector2.Dot(velocity, vectorFromOther) + Vector2.Dot(e.Velocity, -vectorFromOther)); //make velocity depend on position
+                TotalExteriorForce += collissionRepulsion;
 
-        public virtual void HandleCollision(WorldEntity eOther, bool passesThroughFromBack = false, bool passesThroughFromFront = false)
-        {
-            TotalExteriorForce += Physics.CalculateCollissionRepulsion(Position, eOther.Position, Velocity * Mass, eOther.Velocity * eOther.Mass);
-            TotalExteriorForce += Physics.CalculateOverlapRepulsion(Position, eOther.Position, Radius) * (eOther.Mass + Mass) / 2;     
+                //overlap repulsion
+                float distance2 = (position - e.Position).Length();
+                float radius = Radius * (e.Mass + Mass)/2;
+                if (distance2 < radius / 2)
+                    distance2 = radius / 2;
+                Vector2 overlapRepulsion = 1f * Vector2.Normalize(position - e.Position) / (float)Math.Pow(distance2 / radius, 1 / 1);
+                TotalExteriorForce += overlapRepulsion;
+            }
         }
 
         public bool CollidesWith(WorldEntity e)
         {
             return IsCollidable && e.IsCollidable && collisionDetector.CollidesWith(e.collisionDetector);
+        }
+        public virtual void ApplyRepulsion(WorldEntity otherEntity)
+        {
+            TotalExteriorForce += Mass * CalculateGravitationalRepulsion(this, otherEntity);
+        }
+        public static Vector2 CalculateGravitationalRepulsion(WorldEntity entityAffected, WorldEntity entityAffecting)
+        {
+            if (entityAffected.Radius + entityAffecting.Radius + REPULSIONDISTANCE > Vector2.Distance(entityAffected.Position, entityAffecting.Position))
+            {
+                Vector2 vectorToE = entityAffecting.Position - entityAffected.Position;
+                float distance = vectorToE.Length();
+                float res = 0;
+                return Vector2.Normalize(vectorToE) * res;
+            }
+            return Vector2.Zero;
         }
         #endregion
     }
