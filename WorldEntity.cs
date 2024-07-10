@@ -82,15 +82,15 @@ namespace OBB_CD_Comparison
                 Vector2 vectorFromOther = e.Position - position;
                 float distance = vectorFromOther.Length();
                 vectorFromOther.Normalize();
-                Vector2 collissionRepulsion = 0.5f * Vector2.Normalize(-vectorFromOther) * (Vector2.Dot(velocity, vectorFromOther) + Vector2.Dot(e.Velocity, -vectorFromOther)); //make velocity depend on position
+                Vector2 collissionRepulsion = 0.5f * Vector2.Normalize(-vectorFromOther) * (Vector2.Dot(velocity, vectorFromOther)*Mass + Vector2.Dot(e.Velocity, -vectorFromOther)*e.Mass); //make velocity depend on position
                 TotalExteriorForce += collissionRepulsion;
 
                 //overlap repulsion
                 float distance2 = (position - e.Position).Length();
+                if (distance2 < 5)
+                    distance2 = 5;
                 float radius = Radius * (e.Mass + Mass)/2;
-                if (distance2 < radius / 2)
-                    distance2 = radius / 2;
-                Vector2 overlapRepulsion = 1f * Vector2.Normalize(position - e.Position) / (float)Math.Pow(distance2 / radius, 1 / 1);
+                Vector2 overlapRepulsion = 500f * Vector2.Normalize(position - e.Position) / distance2;
                 TotalExteriorForce += overlapRepulsion;
             }
         }
