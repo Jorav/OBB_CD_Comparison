@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace OBB_CD_Comparison
@@ -10,6 +11,7 @@ namespace OBB_CD_Comparison
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Controller controller;
+        private PerformanceMeasurer performanceMeasurer;
         public static int ScreenWidth;
         public static int ScreenHeight;
 
@@ -33,7 +35,7 @@ namespace OBB_CD_Comparison
         protected override void LoadContent()
         {
             // use this and Content to load your game content here
-
+            performanceMeasurer = new PerformanceMeasurer();
             _graphics.ApplyChanges();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
@@ -61,6 +63,7 @@ namespace OBB_CD_Comparison
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             controller.Update(gameTime);
+            performanceMeasurer.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -73,6 +76,12 @@ namespace OBB_CD_Comparison
                 controller.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
+        }
+
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            performanceMeasurer.Exit();
+            base.OnExiting(sender, args);
         }
     }
 }
