@@ -30,7 +30,7 @@ namespace OBB_CD_Comparison
 
         public virtual void Update(GameTime gameTime) //OBS Ska vara en funktion i thruster
         {
-            Vector2 FrictionForce = (Velocity * Mass + TotalExteriorForce) * Friction;
+            Vector2 FrictionForce = (Velocity * Mass + TotalExteriorForce) * Friction * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
             Velocity = Velocity + (TotalExteriorForce - FrictionForce) / Mass * (float)gameTime.ElapsedGameTime.TotalSeconds*60;
             //Velocity = Physics.CalculateVelocity(Velocity, TotalExteriorForce, Mass, Friction);
             Position += Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds * 60;
