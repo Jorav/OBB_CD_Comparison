@@ -104,21 +104,6 @@ namespace OBB_CD_Comparison
         {
             return IsCollidable && e.IsCollidable && collisionDetector.CollidesWith(e.collisionDetector);
         }
-        public virtual void ApplyRepulsion(WorldEntity otherEntity)
-        {
-            TotalExteriorForce += Mass * CalculateGravitationalRepulsion(this, otherEntity);
-        }
-        public static Vector2 CalculateGravitationalRepulsion(WorldEntity entityAffected, WorldEntity entityAffecting)
-        {
-            if (entityAffected.Radius + entityAffecting.Radius + REPULSIONDISTANCE > Vector2.Distance(entityAffected.Position, entityAffecting.Position))
-            {
-                Vector2 vectorToE = entityAffecting.Position - entityAffected.Position;
-                float distance = vectorToE.Length();
-                float res = 0;
-                return Vector2.Normalize(vectorToE) * res;
-            }
-            return Vector2.Zero;
-        }
         #endregion
     }
 }
