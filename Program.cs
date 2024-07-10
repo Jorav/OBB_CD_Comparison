@@ -8,7 +8,10 @@ namespace OBB_CD_Comparison
         static void Main()
         {
             using (var game = new Game1())
+            {
+                game.IsFixedTimeStep = false;
                 game.Run();
+            }
         }
     }
 }
