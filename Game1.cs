@@ -39,10 +39,10 @@ namespace OBB_CD_Comparison
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
             controller = new Controller();
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100)));
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700)));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700)));
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
 
 
         }

@@ -52,6 +52,7 @@ namespace OBB_CD_Comparison
             this.sprite = new Sprite(texture);
             collisionDetector = new CollidableRectangle(position, rotation, sprite.Width, sprite.Height);
             Position = position;
+            Rotation = rotation;
             IsVisible = isVisible;
             IsCollidable = isCollidable;
             Origin = new Vector2(Width / 2, Height / 2);
@@ -92,6 +93,11 @@ namespace OBB_CD_Comparison
                 Vector2 overlapRepulsion = 1f * Vector2.Normalize(position - e.Position) / (float)Math.Pow(distance2 / radius, 1 / 1);
                 TotalExteriorForce += overlapRepulsion;
             }
+        }
+
+        public void GenerateAxes()
+        {
+            collisionDetector.GenerateAxes();
         }
 
         public bool CollidesWith(WorldEntity e)

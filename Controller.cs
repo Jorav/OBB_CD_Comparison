@@ -107,9 +107,15 @@ namespace OBB_CD_Comparison
         protected void InternalCollission()
         {
             foreach (WorldEntity c1 in Entities)
+            {
+                c1.GenerateAxes();
                 foreach (WorldEntity c2 in Entities)
+                {
+                    c2.GenerateAxes();
                     if (c1 != c2)
                         c1.Collide(c2);
+                }
+            }
         }
 
         private void UpdateEntities(GameTime gameTime)

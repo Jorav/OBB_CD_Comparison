@@ -57,6 +57,7 @@ namespace OBB_CD_Comparison
             get { return rotation; }
         }
         public float Radius { get { return (float)Math.Sqrt(Math.Pow(Width / 2, 2) + Math.Pow(Height / 2, 2)); } }
+        Vector2[] axes;
 
         public CollidableRectangle(Vector2 UL, Vector2 DL, Vector2 DR, Vector2 UR)
         {
@@ -79,7 +80,9 @@ namespace OBB_CD_Comparison
         public bool CollidesWith(CollidableRectangle r)
         {
             bool collides = true;
-            Vector2[] axes = GenerateAxes(r);
+            //GenerateAxes();
+            //r.GenerateAxes();
+            axes = new Vector2[] { axes[0], axes[1], r.axes[0], r.axes[1] };
             float[] scalarA = new float[4];
             float[] scalarB = new float[4];
             foreach (Vector2 axis in axes)
@@ -92,7 +95,7 @@ namespace OBB_CD_Comparison
                 scalarB[1] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.DL, axis) / axis.LengthSquared()));
                 scalarB[2] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.DR, axis) / axis.LengthSquared()));
                 scalarB[3] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(r.UR, axis) / axis.LengthSquared()));
-                if (scalarB.Max() < scalarA.Min() + 1 || scalarA.Max() < scalarB.Min() + 1)
+                if (scalarB.Max() < scalarA.Min() + 0.01f || scalarA.Max() < scalarB.Min() + 0.01f)
                     collides = false;
             }
             return collides;
@@ -116,13 +119,11 @@ namespace OBB_CD_Comparison
             Vector2 AB = UR - UL;
             return 0 <= Vector2.Dot(AM, AB) && Vector2.Dot(AM, AB) <= Vector2.Dot(AB, AB) && 0 <= Vector2.Dot(AM, AD) && Vector2.Dot(AM, AD) <= Vector2.Dot(AD, AD);
         }
-        private Vector2[] GenerateAxes(CollidableRectangle r)
+        public Vector2[] GenerateAxes()
         {
-            Vector2[] axes = new Vector2[4];
+            axes = new Vector2[2];
             axes[0] = new Vector2(UR.X - UL.X, UR.Y - UL.Y);
             axes[1] = new Vector2(UR.X - DR.X, UR.Y - DR.Y);
-            axes[2] = new Vector2(r.UL.X - r.DL.X, r.UL.Y - r.DL.Y);
-            axes[3] = new Vector2(r.UL.X - r.UR.X, r.UL.Y - r.UR.Y);
             return axes;
         }
     }
