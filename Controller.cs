@@ -100,7 +100,6 @@ namespace OBB_CD_Comparison
             UpdatePosition();
             UpdateRadius();
             ApplyInternalGravity();
-            ApplyInternalRepulsion();
             InternalCollission();
         }
 
@@ -162,22 +161,12 @@ namespace OBB_CD_Comparison
         protected void ApplyInternalGravity()
         {
             Vector2 distanceFromController;
-            foreach (WorldEntity c1 in Entities)
+            foreach (WorldEntity entity in Entities)
             {
-                distanceFromController = Position - c1.Position;
-                if (distanceFromController.Length() > c1.Radius)
-                    c1.Accelerate(Vector2.Normalize(Position - c1.Position), (float)Math.Pow(((distanceFromController.Length() - c1.Radius) / AverageDistance()) / 2 * c1.Mass, 2));
-            }
-        }
-        public void ApplyInternalRepulsion()
-        {
-            foreach (WorldEntity c1 in Entities)
-            {
-                foreach (WorldEntity c2 in Entities)//TODO: only allow IsCollidable to affect this?
-                {
-                    if (c1 != c2 && c1 is WorldEntity e1 && c2 is WorldEntity e2)
-                        e1.ApplyRepulsion(e2);
-                }
+                distanceFromController = Position - entity.Position;
+                if (distanceFromController.Length() > entity.Radius)
+                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), 10*(Mass-entity.Mass)*entity.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                //entity.Accelerate(Vector2.Normalize(Position - entity.Position), (float)Math.Pow(((distanceFromController.Length() - entity.Radius) / AverageDistance()) / 2 * entity.Mass, 2));
             }
         }
 

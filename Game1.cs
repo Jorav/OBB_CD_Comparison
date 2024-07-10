@@ -43,6 +43,8 @@ namespace OBB_CD_Comparison
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-570, 755), 1200f));
+            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-580, 523), 30f));
 
 
         }
