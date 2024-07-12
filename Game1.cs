@@ -11,6 +11,7 @@ namespace OBB_CD_Comparison
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Controller controller;
+        private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
         public static int ScreenWidth;
         public static int ScreenHeight;
@@ -41,6 +42,9 @@ namespace OBB_CD_Comparison
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
             controller = new Controller();
+            camera = new Camera(controller);
+            camera.AutoAdjustZoom = true;
+
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
@@ -63,6 +67,7 @@ namespace OBB_CD_Comparison
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             controller.Update(gameTime);
+            camera.Update();
             performanceMeasurer.Update(gameTime);
             base.Update(gameTime);
         }
@@ -71,7 +76,7 @@ namespace OBB_CD_Comparison
         {
             // Add your drawing code here
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            _spriteBatch.Begin(transformMatrix: controller.Camera.Transform);
+            _spriteBatch.Begin(transformMatrix: camera.Transform);
            // _spriteBatch.Begin();
                 controller.Draw(_spriteBatch);
             _spriteBatch.End();
