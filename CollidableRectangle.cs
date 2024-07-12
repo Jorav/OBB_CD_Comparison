@@ -59,13 +59,6 @@ namespace OBB_CD_Comparison
         public float Radius { get { return (float)Math.Sqrt(Math.Pow(Width / 2, 2) + Math.Pow(Height / 2, 2)); } }
         Vector2[] axes;
 
-        public CollidableRectangle(Vector2 UL, Vector2 DL, Vector2 DR, Vector2 UR)
-        {
-            this.UL = UL;
-            this.DL = DL;
-            this.DR = DR;
-            this.UR = UR;
-        }
         public CollidableRectangle(Vector2 position, float rotation, int width, int height)
         {
             UL = new Vector2(position.X, position.Y);
@@ -75,7 +68,6 @@ namespace OBB_CD_Comparison
             this.position = position;
             origin = new Vector2(Width / 2, Height / 2);
             Rotation = rotation;
-
         }
         public bool CollidesWith(CollidableRectangle r)
         {
