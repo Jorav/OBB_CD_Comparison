@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace OBB_CD_Comparison
 {
-    public class WorldEntity : Movable
+    public class WorldEntity : Movable, Entity
     {
         #region Properties
         protected Sprite sprite = null;
@@ -72,7 +72,11 @@ namespace OBB_CD_Comparison
         {
             return IsCollidable && collisionDetector.Contains(point);
         }
-
+        public void Collide(Entity e)
+        {
+            if (e is WorldEntity we)
+                Collide(we);
+        }
         public void Collide(WorldEntity e)
         {
             //collision direct

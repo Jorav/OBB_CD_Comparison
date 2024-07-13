@@ -10,7 +10,7 @@ namespace OBB_CD_Comparison
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Controller controller;
+        private ControllerBVH controller;
         private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
         public static int ScreenWidth;
@@ -41,9 +41,8 @@ namespace OBB_CD_Comparison
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
-            controller = new Controller();
-            camera = new Camera(controller);
-            camera.AutoAdjustZoom = true;
+            controller = new ControllerBVH();
+            camera = new Camera(controller) { AutoAdjustZoom = true };
 
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
