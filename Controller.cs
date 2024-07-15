@@ -10,7 +10,6 @@ namespace OBB_CD_Comparison
     public class Controller
     {
         protected List<WorldEntity> entities;
-        public Camera Camera { get; private set; }
         public List<WorldEntity> Entities { get { return entities; } set { SetEntities(value); } }
         protected float collissionOffset = 100; //TODO make this depend on velocity + other things?
         public float Radius { get { return radius; } protected set { radius = value; } }
@@ -43,9 +42,6 @@ namespace OBB_CD_Comparison
         public Controller(List<WorldEntity> controllables)
         {
             SetEntities(controllables);
-            Camera = new Camera(this);
-            Camera.AutoAdjustZoom = true;
-            Camera.Position = Position;
         }
 
         public Controller([OptionalAttribute] Vector2 position)
@@ -53,9 +49,6 @@ namespace OBB_CD_Comparison
             if (position == null)
                 position = Vector2.Zero;
             SetEntities(new List<WorldEntity>());
-            Camera = new Camera(this);
-            Camera.AutoAdjustZoom = true;
-            Camera.Position = Position;
         }
         public virtual void SetEntities(List<WorldEntity> newControllables)
         {
@@ -96,7 +89,6 @@ namespace OBB_CD_Comparison
         public virtual void Update(GameTime gameTime)
         {
             UpdateEntities(gameTime);
-            Camera.Update();
             UpdatePosition();
             UpdateRadius();
             ApplyInternalGravity();

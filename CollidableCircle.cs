@@ -20,7 +20,7 @@ namespace OBB_CD_Comparison
 
         public bool CollidesWith(CollidableCircle c)
         {
-            return Math.Sqrt(Math.Pow((double)(Position.X) - (double)(c.Position.X), 2) + Math.Pow((double)(Position.Y) - (double)(c.Position.Y), 2)) <= (Radius + c.Radius) - 1;
+            return Math.Sqrt(Math.Pow((double)(Position.X) - (double)(c.Position.X), 2) + Math.Pow((double)(Position.Y) - (double)(c.Position.Y), 2)) <= (Radius + c.Radius);
         }
 
         public bool Contains(Vector2 position)
