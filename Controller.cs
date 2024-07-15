@@ -165,7 +165,7 @@ namespace OBB_CD_Comparison
             {
                 distanceFromController = Position - entity.Position;
                 if (distanceFromController.Length() > entity.Radius)
-                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), 10*(Mass-entity.Mass)*entity.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), Game1.GRAVITY*(Mass-entity.Mass)*entity.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
                 //entity.Accelerate(Vector2.Normalize(Position - entity.Position), (float)Math.Pow(((distanceFromController.Length() - entity.Radius) / AverageDistance()) / 2 * entity.Mass, 2));
             }
         }

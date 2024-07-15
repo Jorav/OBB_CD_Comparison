@@ -14,6 +14,7 @@ namespace OBB_CD_Comparison
         private PerformanceMeasurer performanceMeasurer;
         public static int ScreenWidth;
         public static int ScreenHeight;
+        public static float GRAVITY = 10;
 
         public Game1()
         {
@@ -41,18 +42,27 @@ namespace OBB_CD_Comparison
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
             controller = new Controller();
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-570, 755), 1200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-580, 523), 30f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 100), 100f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(300, 200)));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(400, 700), 50f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
+            string[] ConfigVar = EntityFactory.ReadConfig();
+            GRAVITY= float.Parse(ConfigVar[2]);
+            List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
+            foreach(WorldEntity w in returnedList)
+            {
+                controller.AddEntity(w);
+            }
+
+
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-570, 755), 1200f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-580, 523), 30f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 100), 100f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(300, 200)));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(400, 700), 50f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
+            // controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
 
 
         }
