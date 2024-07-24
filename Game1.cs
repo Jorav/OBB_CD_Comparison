@@ -44,6 +44,19 @@ namespace OBB_CD_Comparison
             controller = new ControllerBVH();
             camera = new Camera(controller) { AutoAdjustZoom = true };
 
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(200, 200)));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-570, 755), 1200f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-580, 523), 30f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(200, 100), 100f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(300, 200)));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(400, 700), 50f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
+            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
+            /**
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
@@ -56,7 +69,8 @@ namespace OBB_CD_Comparison
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
             controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
-
+            */
+            camera.Position = controller.Position;
 
         }
 

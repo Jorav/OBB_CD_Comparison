@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace OBB_CD_Comparison
 {
-    public class WorldEntity : Movable, Entity
+    public class WorldEntity : Movable, IEntity
     {
         #region Properties
         protected Sprite sprite = null;
@@ -45,6 +45,8 @@ namespace OBB_CD_Comparison
         public float Height { get { return sprite.Height; } }
         public float Radius { get { return collisionDetector.Radius; } }
         public bool IsCollidable { get; set; }
+        public ControllerBVH Parent { get; set;}
+
         public static float REPULSIONDISTANCE = 100;
         #endregion
         public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
@@ -72,10 +74,19 @@ namespace OBB_CD_Comparison
         {
             return IsCollidable && collisionDetector.Contains(point);
         }
-        public void Collide(Entity e)
+        public void Collide(IEntity e)
         {
-            if (e is WorldEntity we)
+            if (e is WorldEntity we){
+                we.GenerateAxes();
+                GenerateAxes();
                 Collide(we);
+            }
+            else if (e is ControllerBVH bvh){
+                foreach(IEntity entity in bvh.Entities)
+                    Collide(entity);
+            }
+            
+                
         }
         public void Collide(WorldEntity e)
         {
@@ -107,6 +118,38 @@ namespace OBB_CD_Comparison
         public bool CollidesWith(WorldEntity e)
         {
             return IsCollidable && e.IsCollidable && collisionDetector.CollidesWith(e.collisionDetector);
+        }
+
+        public IEntity BranchAndBound(WorldEntity eNew, IEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<IEntity, float> queue)
+        {
+            if(inheritedCost >= bestCost)
+                return bestEntity; //return the best node
+
+            float areaIncrease = AreaIncrease(eNew);
+            float totalCost = areaIncrease + Radius*Radius + inheritedCost;
+            if(totalCost<bestCost){
+                bestEntity = this;
+                bestCost = totalCost;
+            }
+                
+            inheritedCost+=areaIncrease;
+            if(queue.Count == 0)
+                return bestEntity; //return the best node
+            else{
+                queue.TryDequeue(
+                    out IEntity nextEntity,
+                    out float nextInheritedCost
+            );
+                return nextEntity.BranchAndBound(eNew, bestEntity, bestCost, nextInheritedCost, queue);
+            }
+        }
+
+        private float AreaIncrease(WorldEntity eNew)
+        {
+            float oldArea = Radius*Radius;
+            float sharedRadius = (Vector2.Distance(eNew.Position, Position) + eNew.Radius + Radius)/2;
+            float newArea = sharedRadius*sharedRadius;
+            return newArea-oldArea;
         }
         #endregion
     }

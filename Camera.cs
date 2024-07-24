@@ -16,11 +16,11 @@ namespace OBB_CD_Comparison
         public float Width { get { return Game1.ScreenWidth / Zoom; } }
         public float Height { get { return Game1.ScreenHeight / Zoom; } }
         public bool AutoAdjustZoom { get; set; }
-        public float GameZoom { get { if (Controller != null) return 1.3f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
-        public Entity Controller { get; set; }
+        public float GameZoom { get { if (Controller != null) return 1.0f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
+        public ControllerBVH Controller { get; set; }
         private float zoomSpeed;
 
-        public Camera([OptionalAttribute] ControllerBVH controller, float zoomSpeed = 0.1f)
+        public Camera([OptionalAttribute] ControllerBVH controller, float zoomSpeed = 100f)
         {
             if (controller != null)
             {
@@ -41,10 +41,10 @@ namespace OBB_CD_Comparison
         {
             PreviousPosition = Position;
             if (Controller != null)
-                Position = Controller.Position;
+                //Position = Controller.Position;
             if (AutoAdjustZoom)
             {
-                AdjustZoom(GameZoom);
+                //AdjustZoom(GameZoom);
             }
 
             Rotation = 0;
