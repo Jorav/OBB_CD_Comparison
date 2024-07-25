@@ -97,6 +97,7 @@ namespace OBB_CD_Comparison
 
         protected void InternalCollission()
         {
+            GenerateAxes();
             foreach (WorldEntity c1 in Entities)
             {
                 foreach (WorldEntity c2 in Entities)
@@ -109,7 +110,7 @@ namespace OBB_CD_Comparison
 
         private void UpdateEntities(GameTime gameTime)
         {
-            foreach (IEntity e in Entities)
+            foreach (WorldEntity e in Entities)
                 e.Update(gameTime);
         }
 
@@ -124,7 +125,7 @@ namespace OBB_CD_Comparison
             else if (Entities.Count > 1)
             {
                 float largestDistance = 0;
-                foreach (IEntity e in Entities)
+                foreach (WorldEntity e in Entities)
                 {
                     float distance = Vector2.Distance(e.Position, Position) + e.Radius;
                     if (distance > largestDistance)
@@ -138,7 +139,7 @@ namespace OBB_CD_Comparison
             float nr = 1;
             float distance = 0;
             float mass = 0;
-            foreach (IEntity e in Entities)
+            foreach (WorldEntity e in Entities)
             {
                 distance += (Vector2.Distance(e.Position, Position) + e.Radius) * e.Mass;
                 //nr += 1;
@@ -151,11 +152,11 @@ namespace OBB_CD_Comparison
         protected void ApplyInternalGravity()
         {
             Vector2 distanceFromController;
-            foreach (IEntity e in Entities)
+            foreach (WorldEntity entity in Entities)
             {
-                distanceFromController = Position - e.Position;
-                if (distanceFromController.Length() > e.Radius)
-                    e.Accelerate(Vector2.Normalize(Position - e.Position), 10*(Mass-e.Mass)*e.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                distanceFromController = Position - entity.Position;
+                if (distanceFromController.Length() > entity.Radius)
+                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), Game1.GRAVITY*(Mass-entity.Mass)*entity.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
                 //entity.Accelerate(Vector2.Normalize(Position - entity.Position), (float)Math.Pow(((distanceFromController.Length() - entity.Radius) / AverageDistance()) / 2 * entity.Mass, 2));
             }
         }
@@ -164,7 +165,7 @@ namespace OBB_CD_Comparison
         {
             Vector2 sum = Vector2.Zero;
             float weight = 0;
-            foreach (IEntity e in Entities)
+            foreach (WorldEntity e in Entities)
             {
                 weight += e.Mass;
                 sum += e.Position * e.Mass;
@@ -177,8 +178,13 @@ namespace OBB_CD_Comparison
 
         public void Draw(SpriteBatch sb)
         {
-            foreach (IEntity e in Entities)
+            foreach (WorldEntity e in Entities)
                 e.Draw(sb);
+        }
+        public void GenerateAxes()
+        {
+            foreach (IEntity e in entities)
+                e.GenerateAxes();
         }
     }
 }

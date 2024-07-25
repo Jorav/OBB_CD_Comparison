@@ -15,6 +15,7 @@ namespace OBB_CD_Comparison
         private PerformanceMeasurer performanceMeasurer;
         public static int ScreenWidth;
         public static int ScreenHeight;
+        public static float GRAVITY = 10;
 
         public Game1()
         {
@@ -43,6 +44,9 @@ namespace OBB_CD_Comparison
             //Sprite spriteParticle = new Sprite(textureParticle);
             controller = new ControllerBVH();
             camera = new Camera(controller) { AutoAdjustZoom = true };
+            /**
+            controller = new ControllerBVH();
+            
 
             controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
             controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(200, 200)));
@@ -56,22 +60,17 @@ namespace OBB_CD_Comparison
             controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
             controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
             controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
-            /**
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 200)));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-570, 755), 1200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-580, 523), 30f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(200, 100), 100f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(300, 200)));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(400, 700), 50f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
-            controller.AddEntity(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
             */
-            camera.Position = controller.Position;
 
+            string[] ConfigVar = EntityFactory.ReadConfig();
+            GRAVITY= float.Parse(ConfigVar[2]);
+            List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
+            foreach(WorldEntity w in returnedList)
+            {
+                controller.InsertLeaf(w);
+            }
+            
+            camera.Position = controller.Position;
         }
 
         protected override void Update(GameTime gameTime)

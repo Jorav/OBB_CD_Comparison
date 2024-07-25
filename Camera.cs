@@ -41,10 +41,10 @@ namespace OBB_CD_Comparison
         {
             PreviousPosition = Position;
             if (Controller != null)
-                //Position = Controller.Position;
+                Position = Controller.Position;
             if (AutoAdjustZoom)
             {
-                //AdjustZoom(GameZoom);
+                AdjustZoom(GameZoom);
             }
 
             Rotation = 0;
