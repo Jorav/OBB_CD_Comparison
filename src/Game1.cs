@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using OBB_CD_Comparison.src.BVH;
 using System;
 using System.Collections.Generic;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public class Game1 : Game
     {

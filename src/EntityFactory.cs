@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public class EntityFactory
     {

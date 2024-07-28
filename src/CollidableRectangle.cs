@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     //OBS: Old heritage, god knows how this works
     public class CollidableRectangle

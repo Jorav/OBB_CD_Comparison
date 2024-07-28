@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public class Sprite
     {

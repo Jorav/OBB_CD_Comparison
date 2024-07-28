@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public class PerformanceMeasurer
     {

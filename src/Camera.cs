@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using OBB_CD_Comparison.src.BVH;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public class Camera
     {

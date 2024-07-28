@@ -4,7 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-namespace OBB_CD_Comparison
+
+namespace OBB_CD_Comparison.src.BVH
 {
     public class ControllerBVH : IEntity
     {
@@ -19,6 +20,7 @@ namespace OBB_CD_Comparison
             set
             {
                 Vector2 posChange = value - Position;
+                Vector2[] vectors;
                 foreach (IEntity c in Entities)
                     c.Position += posChange;
                 position = value;
@@ -101,7 +103,7 @@ namespace OBB_CD_Comparison
             if(Parent == null)
             {
                 UpdateTree();
-                ApplyInternalGravityN2();
+                ApplyInternalGravity();
                 InternalCollission();
             }
         }

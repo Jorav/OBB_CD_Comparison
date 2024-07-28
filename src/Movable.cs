@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public abstract class Movable
     {

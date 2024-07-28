@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OBB_CD_Comparison.src.BVH;
 using System;
 using System.Collections.Generic;
 
-namespace OBB_CD_Comparison
+namespace OBB_CD_Comparison.src
 {
     public class WorldEntity : Movable, IEntity
     {
