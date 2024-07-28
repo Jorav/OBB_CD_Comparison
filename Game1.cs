@@ -43,7 +43,7 @@ namespace OBB_CD_Comparison
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
             controller = new ControllerBVH();
-            camera = new Camera(controller) { AutoAdjustZoom = true };
+            
             /**
             controller = new ControllerBVH();
             
@@ -69,8 +69,7 @@ namespace OBB_CD_Comparison
             {
                 controller.InsertLeaf(w);
             }
-            
-            camera.Position = controller.Position;
+            camera = new Camera(controller) { AutoAdjustZoom = true };
         }
 
         protected override void Update(GameTime gameTime)

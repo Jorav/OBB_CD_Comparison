@@ -49,6 +49,10 @@ namespace OBB_CD_Comparison
             Accelerate(directionalVector, Thrust);
         }
 
+        public void AccelerateTo(Vector2 position, float thrust){
+            Accelerate(position-Position, thrust);
+        }
+
         /**
          * Recieved a directional vector and accelerates with a certain thrust
          */

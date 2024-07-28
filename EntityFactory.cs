@@ -53,8 +53,8 @@ namespace OBB_CD_Comparison
              
 		    for (int j = 0; j < flNbrobj ; j++)
 		    {
-               rndrang1 =  rnd.Next(-1000,1000);
-               rndrang2 =  rnd.Next(-1000,1000);
+               rndrang1 =  rnd.Next(-2000,2000);
+               rndrang2 =  rnd.Next(-2000,2000);
                //controllerlist.Add((Entitycontroller.AddEntity(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f)));
                EntityFacList.Add(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f));
             }

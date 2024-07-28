@@ -96,13 +96,14 @@ namespace OBB_CD_Comparison
 
         public virtual void Update(GameTime gameTime)
         {
-            UpdateEntities(gameTime);
+            foreach (IEntity c in Entities)
+                c.Update(gameTime);
             if(Parent == null)
+            {
                 UpdateTree();
-            position = GetMassCenter();
-            Radius = GetRadius();
-            ApplyInternalGravity();
-            InternalCollission();
+                ApplyInternalGravityN2();
+                InternalCollission();
+            }
         }
 
         private void UpdateTree()
@@ -161,62 +162,6 @@ namespace OBB_CD_Comparison
                 }
                 AddEntity(e);
             }
-            // Stage 3: walk back up the tree refitting boundingcircles
-
-            // Stage 1: find the best sibling for the new leaf
-            /**
-                int bestSibling = 0;
-                for (int i = 0; i < m_nodeCount; ++i)
-                {
-                bestSibling = PickBest(bestSibling, i);
-                }
-            */
-            // Stage 2: create a new parent
-            /**
-                int oldParent = tree.nodes[sibling].parentIndex;
-                int newParent = AllocateInternalNode(tree);
-                tree.nodes[newParent].parentIndex = oldParent;
-                tree.nodes[newParent].box = Union(box, tree.nodes[sibling].box);
-                if (oldParent != nullIndex)
-                {
-                    // The sibling was not the root
-                    if (tree.nodes[oldParent].child1 == sibling)
-                    {
-                        tree.nodes[oldParent].child1 = newParent;
-                    }
-                    else
-                    {
-                        tree.nodes[oldParent].child2 = newParent;
-                    }
-                    tree.nodes[newParent].child1 = sibling;
-                    tree.nodes[newParent].child2 = leafIndex;
-                    tree.nodes[sibling].parentIndex = newParent;
-                    tree.nodes[leafIndex].parentIndex = newParent;
-                }
-                else
-                {
-                // The sibling was the root
-                tree.nodes[newParent].child1 = sibling;
-                tree.nodes[newParent].child2 = leafIndex;
-                tree.nodes[sibling].parentIndex = newParent;
-                tree.nodes[leafIndex].parentIndex = newParent;
-                tree.rootIndex = newParent;
-                }
-            */
-
-            // Stage 3: walk back up the tree refitting boundingcircles
-            /**
-                int index = tree.nodes[leafIndex].parentIndex;
-                while (index != nullIndex)
-                {
-                int child1 = tree.nodes[index].child1;
-                int child2 = tree.nodes[index].child2;
-                tree.nodes[index].box = Union(tree.nodes[child1].box, tree.nodes[child2].box);
-                index = tree.nodes[index].parentIndex;
-                }
-            */
-            
-            //return newArea - currentArea;
         }
 
         private void RefitParentBoundingBoxes()
@@ -271,6 +216,8 @@ namespace OBB_CD_Comparison
                     if (c1 != c2)
                         c1.Collide(c2);
                 }
+                if(c1 is ControllerBVH bvh)
+                    bvh.InternalCollission();
             }
         }
         public void Collide(IEntity e)
@@ -278,19 +225,15 @@ namespace OBB_CD_Comparison
             if (((IEntity)this).CollidesWith(e))
             {
                 if (e is ControllerBVH c)
+                {
                     foreach (IEntity ce in c.Entities)
                         Collide(ce);
+                }
                 else
                     foreach (IEntity e1 in Entities)
                         e1.Collide(e);
             }
             
-        }
-
-        private void UpdateEntities(GameTime gameTime)
-        {
-            foreach (IEntity c in Entities)
-                c.Update(gameTime);
         }
 
         //TODO: make this work 
@@ -314,36 +257,40 @@ namespace OBB_CD_Comparison
             }
             return 0;
         }
-        protected float AverageDistance()
-        {
-            float nr = 1;
-            float distance = 0;
-            float mass = 0;
-            foreach (IEntity c in Entities)
-            {
-                distance += (Vector2.Distance(c.Position, Position) + c.Radius) * c.Mass;
-                //nr += 1;
-                mass += c.Mass;
-            }
-            if (mass != 0)
-                return distance / nr / mass;
-            return 1;
-        }
         protected void ApplyInternalGravity()
         {
             Vector2 distanceFromController;
             foreach (IEntity entity in Entities)
             {
-                distanceFromController = Position - entity.Position;
-                if (distanceFromController.Length() > entity.Radius)
-                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), 10 * (Mass - entity.Mass) * entity.Mass / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
-                //entity.Accelerate(Vector2.Normalize(Position - entity.Position), (float)Math.Pow(((distanceFromController.Length() - entity.Radius) / AverageDistance()) / 2 * entity.Mass, 2));
+                distanceFromController = Position - entity.Position; // OBSOBSOBS make this depend on the distance of the worldentity, not the controller 
+                if (distanceFromController.Length() > 1)//entity.Radius)
+                    entity.AccelerateTo(Position, Game1.GRAVITY * (Mass - entity.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
                 if(entity is ControllerBVH bvh)
                     bvh.ApplyInternalGravity();
             }
         }
+        protected void ApplyInternalGravityN()
+        {
+            Vector2 distanceFromController;
+            foreach (IEntity entity in Entities)
+            {
+                distanceFromController = Position - entity.Position;
+                if (distanceFromController.Length() > 1)//entity.Radius)
+                    entity.AccelerateTo(Position, Game1.GRAVITY * (Mass - 1) / (float)Math.Pow((distanceFromController.Length()), 1));
+            }
+        }
 
-        protected Vector2 GetMassCenter() //TODO: only allow IsCollidable to affect this?
+        protected void ApplyInternalGravityN2()
+        {
+            List<WorldEntity> worldEntities = new();
+            UnwrapTree(worldEntities);
+            foreach(WorldEntity we1 in worldEntities)
+                foreach(WorldEntity we2 in worldEntities)
+                    if(we1 != we2)
+                        we1.AccelerateTo(we2.Position, Game1.GRAVITY * we1.Mass * we2.Mass / (float)Math.Pow(((we1.Position - we2.Position).Length()), 1));
+        }
+
+        protected Vector2 GetMassCenter()
         {
             Vector2 sum = Vector2.Zero;
             float weight = 0;
@@ -369,6 +316,12 @@ namespace OBB_CD_Comparison
         {
             foreach (IEntity e in entities)
                 e.Accelerate(direction, force);
+        }
+
+        public void AccelerateTo(Vector2 position, float force)
+        {
+            foreach (IEntity e in entities)
+                e.AccelerateTo(position, force);
         }
 
         public void GenerateAxes()

@@ -20,7 +20,7 @@ namespace OBB_CD_Comparison
         public ControllerBVH Controller { get; set; }
         private float zoomSpeed;
 
-        public Camera([OptionalAttribute] ControllerBVH controller, float zoomSpeed = 100f)
+        public Camera([OptionalAttribute] ControllerBVH controller, float zoomSpeed = 0.001f)
         {
             if (controller != null)
             {
@@ -41,15 +41,22 @@ namespace OBB_CD_Comparison
         {
             PreviousPosition = Position;
             if (Controller != null)
-                Position = Controller.Position;
+                //AdjustPosition();
             if (AutoAdjustZoom)
             {
-                AdjustZoom(GameZoom);
+                //AdjustZoom(GameZoom);
             }
 
             Rotation = 0;
             UpdateTransformMatrix();
         }
+
+        private void AdjustPosition()
+        {
+            PreviousPosition = Position;
+            Position = PreviousPosition + 0.001f*(Controller.Position-PreviousPosition);
+        }
+
         private void AdjustZoom(float optimalZoom)
         {
             if (optimalZoom > Zoom)
