@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using OBB_CD_Comparison.src.BVH;
+using OBB_CD_Comparison.src.old;
 using System;
 using System.Collections.Generic;
 
@@ -65,8 +66,8 @@ namespace OBB_CD_Comparison.src
 
             string[] ConfigVar = EntityFactory.ReadConfig();
             GRAVITY= float.Parse(ConfigVar[2]);
-            List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
-            foreach(WorldEntity w in returnedList)
+            List<OLDWorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
+            foreach(OLDWorldEntity w in returnedList)
             {
                 controller.InsertLeaf(w);
             }

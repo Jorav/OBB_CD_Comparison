@@ -22,7 +22,6 @@ namespace OBB_CD_Comparison.src
         public void Draw(SpriteBatch spriteBatch);
         public void Collide(IEntity e);
         public void GenerateAxes();
-        public ControllerBVH ParentController {get;set;}
-        public IEntity BranchAndBound(WorldEntity eNew, IEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<IEntity, float> queue);
+        public BoundingCircleNode ParentController {get;set;}
     }
 }

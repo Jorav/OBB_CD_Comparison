@@ -1,12 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using OBB_CD_Comparison.src.BVH;
 using System;
 using System.Collections.Generic;
 
-namespace OBB_CD_Comparison.src
+namespace OBB_CD_Comparison.src.old
 {
-    public class WorldEntity : Movable, IEntity
+    public class OLDWorldEntity : Movable, OLDIEntity
     {
         #region Properties
         protected Sprite sprite = null;
@@ -48,12 +48,12 @@ namespace OBB_CD_Comparison.src
         public float Height { get { return sprite.Height; } }
         public float Radius { get { return BoundingCircle.Radius; } }
         public bool IsCollidable { get; set; }
-        public BoundingCircleNode ParentController { get; set;}
+        public ControllerBVH ParentController { get; set;}
         public BoundingCircleNode Parent { get; set; }
         public Vector2 MassCenter { get {return position;}}
         public static float REPULSIONDISTANCE = 100;
         #endregion
-        public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
+        public OLDWorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
         {
             this.sprite = new Sprite(texture);
             OBB = new CollidableRectangle(position, rotation, sprite.Width, sprite.Height);
@@ -79,22 +79,21 @@ namespace OBB_CD_Comparison.src
         {
             return IsCollidable && OBB.Contains(point);
         }
-        public void Collide(IEntity e)
+        public void Collide(OLDIEntity e)
         {
-            if (e is WorldEntity we){
+            if (e is OLDWorldEntity we){
                 we.GenerateAxes();
                 GenerateAxes();
                 Collide(we);
-                we.Collide(this);
             }
-            else if (e is BoundingCircleNode bvh){
-                foreach(IEntity entity in bvh.children)
+            else if (e is ControllerBVH bvh){
+                foreach(OLDIEntity entity in bvh.Entities)
                     Collide(entity);
             }
             
                 
         }
-        public void Collide(WorldEntity e)
+        public void Collide(OLDWorldEntity e)
         {
             //collision direct
             if (CollidesWith(e))
@@ -121,9 +120,41 @@ namespace OBB_CD_Comparison.src
             OBB.GenerateAxes();
         }
 
-        public bool CollidesWith(WorldEntity e)
+        public bool CollidesWith(OLDWorldEntity e)
         {
             return IsCollidable && e.IsCollidable && OBB.CollidesWith(e.OBB);
+        }
+
+        public OLDIEntity BranchAndBound(OLDWorldEntity eNew, OLDIEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<OLDIEntity, float> queue)
+        {
+            if(inheritedCost >= bestCost)
+                return bestEntity; //return the best node
+
+            float areaIncrease = AreaIncrease(eNew);
+            float totalCost = areaIncrease + Radius*Radius + inheritedCost;
+            if(totalCost<bestCost){
+                bestEntity = this;
+                bestCost = totalCost;
+            }
+                
+            inheritedCost+=areaIncrease;
+            if(queue.Count == 0)
+                return bestEntity; //return the best node
+            else{
+                queue.TryDequeue(
+                    out OLDIEntity nextEntity,
+                    out float nextInheritedCost
+            );
+                return nextEntity.BranchAndBound(eNew, bestEntity, bestCost, nextInheritedCost, queue);
+            }
+        }
+
+        private float AreaIncrease(OLDWorldEntity eNew)
+        {
+            float oldArea = Radius*Radius;
+            float sharedRadius = (Vector2.Distance(eNew.Position, Position) + eNew.Radius + Radius)/2;
+            float newArea = sharedRadius*sharedRadius;
+            return newArea-oldArea;
         }
         #endregion
     }

@@ -1,16 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OBB_CD_Comparison.src.old;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace OBB_CD_Comparison.src.BVH
+namespace OBB_CD_Comparison.src.old
 {
-    public class ControllerBVH : IEntity
+    public class ControllerBVH : OLDIEntity
     {
-        protected List<IEntity> entities;
-        public List<IEntity> Entities { get { return entities; } set { SetEntities(value); } }
+        protected List<OLDIEntity> entities;
+        public List<OLDIEntity> Entities { get { return entities; } set { SetEntities(value); } }
         //rotected float collissionOffset = 100; //TODO make this depend on velocity + other things?
         public float Radius { get { return radius; } protected set { radius = value; } }
         protected float radius;
@@ -21,7 +22,7 @@ namespace OBB_CD_Comparison.src.BVH
             {
                 Vector2 posChange = value - Position;
                 Vector2[] vectors;
-                foreach (IEntity c in Entities)
+                foreach (OLDIEntity c in Entities)
                     c.Position += posChange;
                 position = value;
             }
@@ -32,7 +33,7 @@ namespace OBB_CD_Comparison.src.BVH
             get
             {
                 float sum = 0;
-                foreach (IEntity c in Entities)
+                foreach (OLDIEntity c in Entities)
                     sum += c.Mass;
                 return sum;
             }
@@ -42,7 +43,7 @@ namespace OBB_CD_Comparison.src.BVH
 
         protected Vector2 position;
 
-        public ControllerBVH(List<IEntity> controllables)
+        public ControllerBVH(List<OLDIEntity> controllables)
         {
             SetEntities(controllables);
         }
@@ -51,16 +52,16 @@ namespace OBB_CD_Comparison.src.BVH
         {
             if (position == null)
                 position = Vector2.Zero;
-            SetEntities(new List<IEntity>());
+            SetEntities(new List<OLDIEntity>());
             ParentController = parent;
         }
-        public virtual void SetEntities(List<IEntity> newControllables)
+        public virtual void SetEntities(List<OLDIEntity> newControllables)
         {
             if (newControllables != null)
             {
-                List<IEntity> oldControllables = Entities;
-                entities = new List<IEntity>();
-                foreach (IEntity c in newControllables)
+                List<OLDIEntity> oldControllables = Entities;
+                entities = new List<OLDIEntity>();
+                foreach (OLDIEntity c in newControllables)
                     AddEntity(c);
                 if (Entities.Count == 0)
                 {
@@ -68,11 +69,11 @@ namespace OBB_CD_Comparison.src.BVH
                 }
             }
         }
-        public void AddEntity(IEntity e)
+        public void AddEntity(OLDIEntity e)
         {
             if (entities == null)
             {
-                entities = new List<IEntity>();
+                entities = new List<OLDIEntity>();
             }
 
             if (e != null)
@@ -84,7 +85,7 @@ namespace OBB_CD_Comparison.src.BVH
                 e.ParentController = this;
             }
         }
-        public bool RemoveEntity(IEntity c)
+        public bool RemoveEntity(OLDIEntity c)
         {
             if (entities != null && entities.Contains(c))
             {
@@ -100,7 +101,7 @@ namespace OBB_CD_Comparison.src.BVH
 
         public virtual void Update(GameTime gameTime)
         {
-            foreach (IEntity c in Entities)
+            foreach (OLDIEntity c in Entities)
                 c.Update(gameTime);
             if(ParentController == null)
             {
@@ -112,24 +113,24 @@ namespace OBB_CD_Comparison.src.BVH
 
         private void UpdateTree()
         {
-            List<WorldEntity> EToBeReinserted = new();
+            List<OLDWorldEntity> EToBeReinserted = new();
             UnwrapTree(EToBeReinserted);
             Entities.Clear();
-            foreach(WorldEntity we in EToBeReinserted)
+            foreach(OLDWorldEntity we in EToBeReinserted)
                 InsertLeaf(we);
         }
 
-        private List<WorldEntity> UnwrapTree(List<WorldEntity> list){
-            foreach(IEntity e in Entities){
+        private List<OLDWorldEntity> UnwrapTree(List<OLDWorldEntity> list){
+            foreach(OLDIEntity e in Entities){
                 if(e is ControllerBVH bvh)
                     bvh.UnwrapTree(list);
-                else if(e is WorldEntity we)
+                else if(e is OLDWorldEntity we)
                     list.Add(we);
             }
             return list;
         }
 
-        public void InsertLeaf(WorldEntity e) //que
+        public void InsertLeaf(OLDWorldEntity e) //que
         {
             //ControllerBVH leafController = new();
             //leafController.AddEntity(e);
@@ -140,7 +141,7 @@ namespace OBB_CD_Comparison.src.BVH
             }
             
             // Stage 1: find the best sibling for the new leaf
-            IEntity bestSibling = BranchAndBound(e, this, AreaIncrease(e)+Radius*Radius, 0, new PriorityQueue<IEntity, float>());
+            OLDIEntity bestSibling = BranchAndBound(e, this, AreaIncrease(e)+Radius*Radius, 0, new PriorityQueue<OLDIEntity, float>());
 
             // Stage 2: create a new parent
             if(bestSibling.ParentController != null){ //not root node: replace bestSibling with a node containing bestSibling and e
@@ -155,10 +156,10 @@ namespace OBB_CD_Comparison.src.BVH
                 if(Entities.Count == 2)
                 {
                     ControllerBVH rootCopy = new();
-                    List<IEntity> oldEntities = new();
-                    foreach(IEntity entity in entities)
+                    List<OLDIEntity> oldEntities = new();
+                    foreach(OLDIEntity entity in entities)
                         oldEntities.Add(entity);
-                    foreach(IEntity entity in oldEntities){
+                    foreach(OLDIEntity entity in oldEntities){
                         entities.Remove(entity);
                         rootCopy.AddEntity(entity);
                     }
@@ -175,7 +176,7 @@ namespace OBB_CD_Comparison.src.BVH
                 ParentController.RefitParentBoundingBoxes();
         }
 
-        public IEntity BranchAndBound(WorldEntity eNew, IEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<IEntity, float> queue){
+        public OLDIEntity BranchAndBound(OLDWorldEntity eNew, OLDIEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<OLDIEntity, float> queue){
             if(inheritedCost >= bestCost)
                 return bestEntity; //return the best node
 
@@ -187,7 +188,7 @@ namespace OBB_CD_Comparison.src.BVH
             }
                 
             inheritedCost+=areaIncrease;
-            foreach(IEntity eBranch in entities)
+            foreach(OLDIEntity eBranch in entities)
                 if (eNew.Radius*eNew.Radius + inheritedCost < bestCost)
                     queue.Enqueue(eBranch, inheritedCost);
                 
@@ -195,7 +196,7 @@ namespace OBB_CD_Comparison.src.BVH
                 return bestEntity; //return the best node
             else{
                 queue.TryDequeue(
-                    out IEntity nextEntity,
+                    out OLDIEntity nextEntity,
                     out float nextInheritedCost
             );
                 return nextEntity.BranchAndBound(eNew, bestEntity, bestCost, nextInheritedCost, queue);
@@ -203,7 +204,7 @@ namespace OBB_CD_Comparison.src.BVH
             
         }
 
-        protected float AreaIncrease(IEntity e) {
+        protected float AreaIncrease(OLDIEntity e) {
             float currentArea = Radius * Radius;
             AddEntity(e);
             float newArea = Radius * Radius;
@@ -213,9 +214,9 @@ namespace OBB_CD_Comparison.src.BVH
 
         protected void InternalCollission()
         {
-            foreach (IEntity c1 in Entities)
+            foreach (OLDIEntity c1 in Entities)
             {
-                foreach (IEntity c2 in Entities)
+                foreach (OLDIEntity c2 in Entities)
                 {
                     if (c1 != c2)
                         c1.Collide(c2);
@@ -224,17 +225,17 @@ namespace OBB_CD_Comparison.src.BVH
                     bvh.InternalCollission();
             }
         }
-        public void Collide(IEntity e)
+        public void Collide(OLDIEntity e)
         {
-            if (((IEntity)this).CollidesWith(e))
+            if (((OLDIEntity)this).CollidesWith(e))
             {
                 if (e is ControllerBVH c)
                 {
-                    foreach (IEntity ce in c.Entities)
+                    foreach (OLDIEntity ce in c.Entities)
                         Collide(ce);
                 }
                 else
-                    foreach (IEntity e1 in Entities)
+                    foreach (OLDIEntity e1 in Entities)
                         e1.Collide(e);
             }
             
@@ -251,7 +252,7 @@ namespace OBB_CD_Comparison.src.BVH
             else if (Entities.Count > 1)
             {
                 float largestDistance = 0;
-                foreach (IEntity c in Entities)
+                foreach (OLDIEntity c in Entities)
                 {
                     float distance = Vector2.Distance(c.Position, Position) + c.Radius;
                     if (distance > largestDistance)
@@ -264,7 +265,7 @@ namespace OBB_CD_Comparison.src.BVH
         protected void ApplyInternalGravity()
         {
             Vector2 distanceFromController;
-            foreach (IEntity entity in Entities)
+            foreach (OLDIEntity entity in Entities)
             {
                 distanceFromController = Position - entity.Position; // OBSOBSOBS make this depend on the distance of the worldentity, not the controller 
                 if (distanceFromController.Length() > 1)//entity.Radius)
@@ -276,7 +277,7 @@ namespace OBB_CD_Comparison.src.BVH
         protected void ApplyInternalGravityN()
         {
             Vector2 distanceFromController;
-            foreach (IEntity entity in Entities)
+            foreach (OLDIEntity entity in Entities)
             {
                 distanceFromController = Position - entity.Position;
                 if (distanceFromController.Length() > 1)//entity.Radius)
@@ -286,10 +287,10 @@ namespace OBB_CD_Comparison.src.BVH
 
         protected void ApplyInternalGravityN2()
         {
-            List<WorldEntity> worldEntities = new();
+            List<OLDWorldEntity> worldEntities = new();
             UnwrapTree(worldEntities);
-            foreach(WorldEntity we1 in worldEntities)
-                foreach(WorldEntity we2 in worldEntities)
+            foreach(OLDWorldEntity we1 in worldEntities)
+                foreach(OLDWorldEntity we2 in worldEntities)
                     if(we1 != we2)
                         we1.AccelerateTo(we2.Position, Game1.GRAVITY * we1.Mass * we2.Mass / (float)Math.Pow(((we1.Position - we2.Position).Length()), 1));
         }
@@ -297,7 +298,7 @@ namespace OBB_CD_Comparison.src.BVH
         public Vector2 GetPosition(){
             Vector2 sum = Vector2.Zero;
             int count = 0;
-            foreach (IEntity c in Entities)
+            foreach (OLDIEntity c in Entities)
             {
                 sum += c.Position;
                 count++;
@@ -311,7 +312,7 @@ namespace OBB_CD_Comparison.src.BVH
         {
             Vector2 sum = Vector2.Zero;
             float weight = 0;
-            foreach (IEntity c in Entities)
+            foreach (OLDIEntity c in Entities)
             {
                 weight += c.Mass;
                 sum += c.Position * c.Mass;
@@ -325,25 +326,25 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Draw(SpriteBatch sb)
         {
-            foreach (IEntity c in Entities)
+            foreach (OLDIEntity c in Entities)
                 c.Draw(sb);
         }
 
         public void Accelerate(Vector2 direction, float force)
         {
-            foreach (IEntity e in entities)
+            foreach (OLDIEntity e in entities)
                 e.Accelerate(direction, force);
         }
 
         public void AccelerateTo(Vector2 position, float force)
         {
-            foreach (IEntity e in entities)
+            foreach (OLDIEntity e in entities)
                 e.AccelerateTo(position, force);
         }
 
         public void GenerateAxes()
         {
-            foreach (IEntity e in entities)
+            foreach (OLDIEntity e in entities)
                 e.GenerateAxes();
         }
     }

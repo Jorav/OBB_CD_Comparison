@@ -36,19 +36,6 @@ namespace OBB_CD_Comparison.src
             TotalExteriorForce = Vector2.Zero;
         }
 
-        /**
-         * Accelerates a certain angle in radians
-         */
-        public void Accelerate(float angle, float thrust) //TODO: Long term make "thruster" into its own entity type
-        {
-            TotalExteriorForce += new Vector2((float)Math.Cos((double)angle), (float)Math.Sin((double)angle)) * thrust;
-        }
-
-        public void Accelerate(Vector2 directionalVector)
-        {
-            Accelerate(directionalVector, Thrust);
-        }
-
         public void AccelerateTo(Vector2 position, float thrust){
             Accelerate(position-Position, thrust);
         }
@@ -63,21 +50,11 @@ namespace OBB_CD_Comparison.src
             TotalExteriorForce += direction * thrust;
         }
 
-        public Vector2 MomentumAlongVector(Vector2 directionalVector)
-        {
-            return VelocityAlongVector(directionalVector) * Mass;
-        }
-
         public Vector2 VelocityAlongVector(Vector2 directionalVector)
         {
             directionalVector = new Vector2(directionalVector.X, directionalVector.Y);//unnecessary?
             directionalVector.Normalize();
             return Vector2.Dot(Velocity, directionalVector) / Vector2.Dot(directionalVector, directionalVector) * directionalVector;
-        }
-
-        public Vector2 Momentum()
-        {
-            return Velocity * Mass;
         }
 
         public virtual void RotateTo(Vector2 position)

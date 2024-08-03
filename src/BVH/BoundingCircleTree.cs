@@ -22,11 +22,11 @@ namespace OBB_CD_Comparison.src.BVH
         {
             if (root.children.Length == 0)
             {
-                root.Add(we);
+                root.Add((IEntity)we);
                 return;
             }
             // Stage 1: find the best sibling for the new leaf
-            INode bestSibling = FindBestSibling(we);
+            IEntity bestSibling = FindBestSibling(we);
 
             // Stage 2: create a new parent
             BoundingCircleNode oldParent = bestSibling.Parent;
@@ -41,14 +41,14 @@ namespace OBB_CD_Comparison.src.BVH
                     oldParent.children[1] = newParent;
 
                 newParent.Add(bestSibling);
-                newParent.Add(we);
+                newParent.Add((IEntity)we);
                 //bestSibling.Parent = newParent;
                 //we.Parent = newParent;
             }
             else
             {
                 newParent.Add(bestSibling);
-                newParent.Add(we);
+                newParent.Add((IEntity)we);
                 //bestSibling.Parent = newParent;
                 //we.Parent = newParent;
                 root = newParent;
@@ -75,16 +75,16 @@ namespace OBB_CD_Comparison.src.BVH
             }
         }
 
-        public INode FindBestSibling(WorldEntity weNew)
+        public IEntity FindBestSibling(WorldEntity weNew)
         {
-            INode bestSibling = root;
+            IEntity bestSibling = root;
             float bestCost = root.BoundingCircle.CombinedBoundingCircle(weNew.BoundingCircle).Area;
-            PriorityQueue<INode, float> queue = new();
+            PriorityQueue<IEntity, float> queue = new();
 
             while (queue.Count > 0)
             {
                 queue.TryDequeue(
-                        out INode currentNode,
+                        out IEntity currentNode,
                         out float inheritedCost
                 );
 
@@ -114,84 +114,32 @@ namespace OBB_CD_Comparison.src.BVH
             return bestSibling;
         }
 
-        /*
-        BoundingCircleNode root = new BoundingCircleNode();
-
-        BoundingCircleTree(){
-        }
-
-        public void InsertLeaf(WorldEntity e)
+        public void Draw(SpriteBatch sb)
         {
-            if(Entities.Count == 0){
-                AddEntity(e);
-                return;
-            }
-            
-            // Stage 1: find the best sibling for the new leaf
-            IEntity bestSibling = BranchAndBound(e, this, AreaIncrease(e)+Radius*Radius, 0, new PriorityQueue<IEntity, float>());
-
-            // Stage 2: create a new parent
-            if(bestSibling.Parent != null){ //not root node: replace bestSibling with a node containing bestSibling and e
-                ControllerBVH newParent = new();
-                bestSibling.Parent.AddEntity(newParent);
-                bestSibling.Parent.RemoveEntity(bestSibling);
-                newParent.AddEntity(bestSibling);
-                newParent.AddEntity(e);
-                newParent.RefitParentBoundingBoxes();// update upwards
-            }
-            else{ //root node: copy the root node, and make it a branch of this, together with e
-                if(Entities.Count == 2)
-                {
-                    ControllerBVH rootCopy = new();
-                    List<IEntity> oldEntities = new();
-                    foreach(IEntity entity in entities)
-                        oldEntities.Add(entity);
-                    foreach(IEntity entity in oldEntities){
-                        entities.Remove(entity);
-                        rootCopy.AddEntity(entity);
-                    }
-                    AddEntity(rootCopy);
-                }
-                AddEntity(e);
-            }
+            root.Draw(sb);
         }
-
-        private void RefitParentBoundingBoxes()
+        public virtual void Update(GameTime gameTime)
         {
-            Radius = GetRadius();
-            if(Parent != null)
-                Parent.RefitParentBoundingBoxes();
+            root.Update(gameTime);
+            RebuildTree();
+            ApplyInternalGravity();
+            InternalCollission();
         }
 
-        public IEntity BranchAndBound(WorldEntity eNew, IEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<IEntity, float> queue){
-            if(inheritedCost >= bestCost)
-                return bestEntity; //return the best node
-
-            float areaIncrease = AreaIncrease(eNew);
-            float totalCost = areaIncrease + Radius*Radius + inheritedCost;
-            if(totalCost<bestCost){
-                bestEntity = this;
-                bestCost = totalCost;
-            }
-                
-            inheritedCost+=areaIncrease;
-            foreach(IEntity eBranch in entities)
-                if (eNew.Radius*eNew.Radius + inheritedCost < bestCost)
-                    queue.Enqueue(eBranch, inheritedCost);
-                
-            if(queue.Count == 0)
-                return bestEntity; //return the best node
-            else{
-                queue.TryDequeue(
-                    out IEntity nextEntity,
-                    out float nextInheritedCost
-            );
-                return nextEntity.BranchAndBound(eNew, bestEntity, bestCost, nextInheritedCost, queue);
-            }
-            
+        private void InternalCollission()
+        {
+            root.InternalCollission();
         }
 
-*/
+        private void ApplyInternalGravity()
+        {
+            root.ApplyInternalGravity();
+        }
+
+        private void RebuildTree()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }
