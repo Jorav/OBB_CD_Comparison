@@ -17,7 +17,7 @@ namespace OBB_CD_Comparison.src
         public float Width { get { return Game1.ScreenWidth / Zoom; } }
         public float Height { get { return Game1.ScreenHeight / Zoom; } }
         public bool AutoAdjustZoom { get; set; }
-        public float GameZoom { get { if (Controller != null) return 1.0f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
+        public float GameZoom { get { if (Controller != null) return 2.0f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
         public ControllerBVH Controller { get; set; }
         private float zoomSpeed;
 

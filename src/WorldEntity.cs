@@ -6,12 +6,13 @@ using System.Collections.Generic;
 
 namespace OBB_CD_Comparison.src
 {
-    public class WorldEntity : Movable, IEntity
+    public class WorldEntity : Movable, IEntity, INode
     {
         #region Properties
         protected Sprite sprite = null;
         public bool IsVisible { get { return sprite.isVisible; } set { sprite.isVisible = value; } }
-        public CollidableRectangle collisionDetector;
+        public CollidableRectangle OBB;
+        public CollidableCircle BoundingCircle {get; set;}
         public override Vector2 Position
         {
             get { return position; }
@@ -19,7 +20,8 @@ namespace OBB_CD_Comparison.src
             {
                 position = value;
                 sprite.Position = value;
-                collisionDetector.Position = value;
+                OBB.Position = value;
+                BoundingCircle.Position = value;
             }
         }
         public override float Rotation
@@ -29,7 +31,7 @@ namespace OBB_CD_Comparison.src
             {
                 rotation = value;
                 sprite.Rotation = value;
-                collisionDetector.Rotation = value;
+                OBB.Rotation = value;
             }
         }
         public Vector2 Origin
@@ -44,16 +46,18 @@ namespace OBB_CD_Comparison.src
         protected Vector2 origin;
         public float Width { get { return sprite.Width; } }
         public float Height { get { return sprite.Height; } }
-        public float Radius { get { return collisionDetector.Radius; } }
+        public float Radius { get { return BoundingCircle.Radius; } }
         public bool IsCollidable { get; set; }
-        public ControllerBVH Parent { get; set;}
-
+        public ControllerBVH ParentController { get; set;}
+        public BoundingCircleNode Parent { get; set; }
+        public Vector2 MassCenter { get {return position;}}
         public static float REPULSIONDISTANCE = 100;
         #endregion
         public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
         {
             this.sprite = new Sprite(texture);
-            collisionDetector = new CollidableRectangle(position, rotation, sprite.Width, sprite.Height);
+            OBB = new CollidableRectangle(position, rotation, sprite.Width, sprite.Height);
+            BoundingCircle = new CollidableCircle(position, OBB.Radius);
             Position = position;
             Rotation = rotation;
             IsVisible = isVisible;
@@ -73,7 +77,7 @@ namespace OBB_CD_Comparison.src
 
         public bool Contains(Vector2 point)
         {
-            return IsCollidable && collisionDetector.Contains(point);
+            return IsCollidable && OBB.Contains(point);
         }
         public void Collide(IEntity e)
         {
@@ -113,12 +117,12 @@ namespace OBB_CD_Comparison.src
 
         public void GenerateAxes()
         {
-            collisionDetector.GenerateAxes();
+            OBB.GenerateAxes();
         }
 
         public bool CollidesWith(WorldEntity e)
         {
-            return IsCollidable && e.IsCollidable && collisionDetector.CollidesWith(e.collisionDetector);
+            return IsCollidable && e.IsCollidable && OBB.CollidesWith(e.OBB);
         }
 
         public IEntity BranchAndBound(WorldEntity eNew, IEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<IEntity, float> queue)

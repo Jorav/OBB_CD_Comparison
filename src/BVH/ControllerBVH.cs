@@ -37,8 +37,8 @@ namespace OBB_CD_Comparison.src.BVH
                 return sum;
             }
         }
-
-        public ControllerBVH Parent { get; set; }
+        public Vector2 MassCenter{get;private set;}
+        public ControllerBVH ParentController { get; set; }
 
         protected Vector2 position;
 
@@ -52,7 +52,7 @@ namespace OBB_CD_Comparison.src.BVH
             if (position == null)
                 position = Vector2.Zero;
             SetEntities(new List<IEntity>());
-            Parent = parent;
+            ParentController = parent;
         }
         public virtual void SetEntities(List<IEntity> newControllables)
         {
@@ -79,8 +79,9 @@ namespace OBB_CD_Comparison.src.BVH
             {
                 entities.Add(e);
                 position = GetMassCenter();
+                MassCenter = GetMassCenter();
                 radius = GetRadius();
-                e.Parent = this;
+                e.ParentController = this;
             }
         }
         public bool RemoveEntity(IEntity c)
@@ -89,8 +90,9 @@ namespace OBB_CD_Comparison.src.BVH
             {
                 entities.Remove(c);
                 position = GetMassCenter();
+                MassCenter = GetMassCenter();
                 radius = GetRadius();
-                c.Parent = null;
+                c.ParentController = null;
                 return true;
             }
             return false;
@@ -100,7 +102,7 @@ namespace OBB_CD_Comparison.src.BVH
         {
             foreach (IEntity c in Entities)
                 c.Update(gameTime);
-            if(Parent == null)
+            if(ParentController == null)
             {
                 UpdateTree();
                 ApplyInternalGravity();
@@ -141,10 +143,10 @@ namespace OBB_CD_Comparison.src.BVH
             IEntity bestSibling = BranchAndBound(e, this, AreaIncrease(e)+Radius*Radius, 0, new PriorityQueue<IEntity, float>());
 
             // Stage 2: create a new parent
-            if(bestSibling.Parent != null){ //not root node: replace bestSibling with a node containing bestSibling and e
+            if(bestSibling.ParentController != null){ //not root node: replace bestSibling with a node containing bestSibling and e
                 ControllerBVH newParent = new();
-                bestSibling.Parent.AddEntity(newParent);
-                bestSibling.Parent.RemoveEntity(bestSibling);
+                bestSibling.ParentController.AddEntity(newParent);
+                bestSibling.ParentController.RemoveEntity(bestSibling);
                 newParent.AddEntity(bestSibling);
                 newParent.AddEntity(e);
                 newParent.RefitParentBoundingBoxes();// update upwards
@@ -169,8 +171,8 @@ namespace OBB_CD_Comparison.src.BVH
         private void RefitParentBoundingBoxes()
         {
             Radius = GetRadius();
-            if(Parent != null)
-                Parent.RefitParentBoundingBoxes();
+            if(ParentController != null)
+                ParentController.RefitParentBoundingBoxes();
         }
 
         public IEntity BranchAndBound(WorldEntity eNew, IEntity bestEntity, float bestCost, float inheritedCost, PriorityQueue<IEntity, float> queue){
@@ -292,6 +294,19 @@ namespace OBB_CD_Comparison.src.BVH
                         we1.AccelerateTo(we2.Position, Game1.GRAVITY * we1.Mass * we2.Mass / (float)Math.Pow(((we1.Position - we2.Position).Length()), 1));
         }
 
+        public Vector2 GetPosition(){
+            Vector2 sum = Vector2.Zero;
+            int count = 0;
+            foreach (IEntity c in Entities)
+            {
+                sum += c.Position;
+                count++;
+            }
+            if(count > 0)
+                return sum/count;
+            return sum;
+        }
+        
         protected Vector2 GetMassCenter()
         {
             Vector2 sum = Vector2.Zero;
