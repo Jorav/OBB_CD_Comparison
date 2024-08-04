@@ -48,7 +48,6 @@ namespace OBB_CD_Comparison.src
         public float Height { get { return sprite.Height; } }
         public float Radius { get { return BoundingCircle.Radius; } }
         public bool IsCollidable { get; set; }
-        public BoundingCircleNode ParentController { get; set;}
         public BoundingCircleNode Parent { get; set; }
         public Vector2 MassCenter { get {return position;}}
         public static float REPULSIONDISTANCE = 100;
@@ -74,11 +73,6 @@ namespace OBB_CD_Comparison.src
         {
             base.Update(gameTime);
         }
-
-        public bool Contains(Vector2 point)
-        {
-            return IsCollidable && OBB.Contains(point);
-        }
         public void Collide(IEntity e)
         {
             if (e is WorldEntity we){
@@ -91,8 +85,6 @@ namespace OBB_CD_Comparison.src
                 foreach(IEntity entity in bvh.children)
                     Collide(entity);
             }
-            
-                
         }
         public void Collide(WorldEntity e)
         {
@@ -115,7 +107,6 @@ namespace OBB_CD_Comparison.src
                 TotalExteriorForce += overlapRepulsion;
             }
         }
-
         public void GenerateAxes()
         {
             OBB.GenerateAxes();

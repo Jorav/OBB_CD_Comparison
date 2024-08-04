@@ -35,12 +35,12 @@ namespace OBB_CD_Comparison.src
             
             
         }
-        public static List<OLDWorldEntity> EntFacImplementation(string SeedVar,string NbrObj,Texture2D textureParticle)
+        public static List<WorldEntity> EntFacImplementation(string SeedVar,string NbrObj,Texture2D textureParticle)
         {
 
              //Controller Entitycontroller = new Controller();
              //Controller Entitycontroller = controller;
-             List<OLDWorldEntity> EntityFacList= new List<OLDWorldEntity>();
+             List<WorldEntity> EntityFacList= new List<WorldEntity>();
 
             int flSeed= int.Parse(SeedVar);
             int flNbrobj=int.Parse(NbrObj);
@@ -57,7 +57,7 @@ namespace OBB_CD_Comparison.src
                rndrang1 =  rnd.Next(-2000,2000);
                rndrang2 =  rnd.Next(-2000,2000);
                //controllerlist.Add((Entitycontroller.AddEntity(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f)));
-               EntityFacList.Add(new OLDWorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f));
+               EntityFacList.Add(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f));
             }
             return EntityFacList;
         }

@@ -12,7 +12,7 @@ namespace OBB_CD_Comparison.src
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private ControllerBVH controller;
+        private BoundingCircleTree controllerTree;
         private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
         public static int ScreenWidth;
@@ -44,34 +44,25 @@ namespace OBB_CD_Comparison.src
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             //Sprite spriteParticle = new Sprite(textureParticle);
-            controller = new ControllerBVH();
-            
-            /**
-            controller = new ControllerBVH();
-            
-
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(100, 100), 100f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(200, 200)));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(700, 700),50f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-500, 700),200f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-570, 755), 1200f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-580, 523), 30f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(200, 100), 100f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(300, 200)));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(400, 700), 50f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-600, 700), 200f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-770, 755), 1200f));
-            controller.InsertLeaf(new WorldEntity(textureParticle, new Vector2(-880, 523), 30f));
-            */
+            controllerTree = new BoundingCircleTree();
+            /*
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1134,245)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1124,15)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1124,120)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(0,0)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(3,300)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(500,5)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(110,0)));
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(232,300)));*/
 
             string[] ConfigVar = EntityFactory.ReadConfig();
             GRAVITY= float.Parse(ConfigVar[2]);
-            List<OLDWorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
-            foreach(OLDWorldEntity w in returnedList)
+            List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
+            foreach(WorldEntity w in returnedList)
             {
-                controller.InsertLeaf(w);
+                controllerTree.Add(w);
             }
-            camera = new Camera(controller) { AutoAdjustZoom = true };
+            camera = new Camera(controllerTree) { AutoAdjustZoom = true };
         }
 
         protected override void Update(GameTime gameTime)
@@ -79,7 +70,7 @@ namespace OBB_CD_Comparison.src
             // Add your update logic here
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            controller.Update(gameTime);
+            controllerTree.Update(gameTime);
             camera.Update();
             performanceMeasurer.Update(gameTime);
             base.Update(gameTime);
@@ -91,7 +82,7 @@ namespace OBB_CD_Comparison.src
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin(transformMatrix: camera.Transform);
            // _spriteBatch.Begin();
-                controller.Draw(_spriteBatch);
+                controllerTree.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
         }

@@ -34,7 +34,7 @@ namespace OBB_CD_Comparison.src.BVH
             }
             Vector2 smallestToLargest = largestCircle.Position-smallestCircle.Position;
             float distance = smallestToLargest.Length();
-            Vector2.Normalize(smallestToLargest);
+            smallestToLargest.Normalize();
 
             if(largestCircle.Radius > distance+smallestCircle.Radius) //if smallest circle completely inside large circle
                 return new CollidableCircle(largestCircle.Position, largestCircle.Radius);

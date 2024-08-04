@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace OBB_CD_Comparison.src
+namespace OBB_CD_Comparison.src.old
 {
     public class Controller
     {
@@ -97,7 +97,6 @@ namespace OBB_CD_Comparison.src
 
         protected void InternalCollission()
         {
-            GenerateAxes();
             foreach (WorldEntity c1 in Entities)
             {
                 foreach (WorldEntity c2 in Entities)
@@ -180,11 +179,6 @@ namespace OBB_CD_Comparison.src
         {
             foreach (WorldEntity e in Entities)
                 e.Draw(sb);
-        }
-        public void GenerateAxes()
-        {
-            foreach (IEntity e in entities)
-                e.GenerateAxes();
         }
     }
 }

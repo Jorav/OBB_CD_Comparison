@@ -10,25 +10,28 @@ namespace OBB_CD_Comparison.src.BVH
 {
     public class BoundingCircleTree
     {
-        BoundingCircleNode root = new();
+        public Vector2 Position { get { return root.Position; } }
+        public float Radius { get { return root.Radius; } }
+        BoundingCircleNode root;
         private Stack<BoundingCircleNode> freeNodes = new();
 
-        BoundingCircleTree()
+        public BoundingCircleTree()
         {
-
         }
 
         public void Add(WorldEntity we)
         {
-            if (root.children.Length == 0)
+            BoundingCircleNode leaf = AllocateLeafNode(we);
+            if (root == null)
             {
-                root.Add((IEntity)we);
+                root = leaf;
                 return;
             }
             // Stage 1: find the best sibling for the new leaf
-            IEntity bestSibling = FindBestSibling(we);
+            BoundingCircleNode bestSibling = FindBestSibling(we);
 
             // Stage 2: create a new parent
+
             BoundingCircleNode oldParent = bestSibling.Parent;
             BoundingCircleNode newParent = AllocateNode();
             newParent.Parent = oldParent;
@@ -39,28 +42,27 @@ namespace OBB_CD_Comparison.src.BVH
                     oldParent.children[0] = newParent;
                 else
                     oldParent.children[1] = newParent;
-
-                newParent.Add(bestSibling);
-                newParent.Add((IEntity)we);
-                //bestSibling.Parent = newParent;
-                //we.Parent = newParent;
             }
             else
             {
-                newParent.Add(bestSibling);
-                newParent.Add((IEntity)we);
-                //bestSibling.Parent = newParent;
-                //we.Parent = newParent;
                 root = newParent;
             }
-
+            newParent.Add(bestSibling);
+            newParent.Add(leaf);
             // Stage 3: walk back up the tree refitting AABBs
             BoundingCircleNode parent = newParent;
             do
             {
                 parent.RefitBoundingCircle();
                 parent = parent.Parent;
-            }while(parent != null);
+            } while (parent != null);
+        }
+
+        private BoundingCircleNode AllocateLeafNode(WorldEntity we)
+        {
+            BoundingCircleNode leafNode = AllocateNode();
+            leafNode.WorldEntity = we;
+            return leafNode;
         }
 
         private BoundingCircleNode AllocateNode()
@@ -75,16 +77,17 @@ namespace OBB_CD_Comparison.src.BVH
             }
         }
 
-        public IEntity FindBestSibling(WorldEntity weNew)
+        public BoundingCircleNode FindBestSibling(WorldEntity weNew)
         {
-            IEntity bestSibling = root;
+            BoundingCircleNode bestSibling = root;
             float bestCost = root.BoundingCircle.CombinedBoundingCircle(weNew.BoundingCircle).Area;
-            PriorityQueue<IEntity, float> queue = new();
+            PriorityQueue<BoundingCircleNode, float> queue = new();
+            queue.Enqueue(root, 0);            
 
             while (queue.Count > 0)
             {
                 queue.TryDequeue(
-                        out IEntity currentNode,
+                        out BoundingCircleNode currentNode,
                         out float inheritedCost
                 );
 
@@ -122,23 +125,35 @@ namespace OBB_CD_Comparison.src.BVH
         {
             root.Update(gameTime);
             RebuildTree();
-            ApplyInternalGravity();
-            InternalCollission();
-        }
-
-        private void InternalCollission()
-        {
-            root.InternalCollission();
-        }
-
-        private void ApplyInternalGravity()
-        {
             root.ApplyInternalGravity();
+            root.InternalCollission();
         }
 
         private void RebuildTree()
         {
-            throw new NotImplementedException();
+            Stack<WorldEntity> entities = new();
+            Stack<BoundingCircleNode> nodesToRebuild = new();
+
+            nodesToRebuild.Push(root);
+
+            while (nodesToRebuild.Count > 0)
+            {
+                BoundingCircleNode currentNode = nodesToRebuild.Pop();
+                foreach (BoundingCircleNode child in currentNode.children)
+                {
+                    if (child != null)
+                    {
+                        if (child.WorldEntity != null)
+                            entities.Push(child.WorldEntity);
+                        else
+                            nodesToRebuild.Push(child);
+                    }
+                }
+                freeNodes.Push(currentNode);
+            }
+            root = null;
+            foreach (WorldEntity we in entities)
+                Add(we);
         }
     }
 

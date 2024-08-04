@@ -12,7 +12,7 @@ namespace OBB_CD_Comparison.src.BVH
     public class BoundingCircleNode : IEntity
     {
         public BoundingCircleNode Parent { get; set; }
-        public IEntity[] children = new IEntity[2];
+        public BoundingCircleNode[] children = new BoundingCircleNode[2];
         public float Radius { get { return radius; } protected set { radius = value; } }
         protected float radius;
         public Vector2 Position
@@ -21,63 +21,70 @@ namespace OBB_CD_Comparison.src.BVH
             set
             {
                 Vector2 posChange = value - Position;
-                Vector2[] vectors;
-                foreach (IEntity c in children)
-                    c.Position += posChange;
+                foreach (BoundingCircleNode c in children)
+                    if(c != null)
+                        c.Position += posChange;
                 position = value;
             }
         }
         protected Vector2 position;
         public float Mass { get; set; }
-        public int Count { get{return count;} set{int difference = value-count; count = value; if(Parent != null) Parent.Count+=difference;} }
-        private int count;
+        public int Count { get; set; }
         public Vector2 MassCenter { get; private set; }
         public CollidableCircle BoundingCircle { get; private set; }
+        public WorldEntity WorldEntity {//=!null implies leaf
+            get{return worldEntity;} 
+            set{worldEntity = value;
+                BoundingCircle = worldEntity.BoundingCircle;
+                position = worldEntity.Position;
+                radius = WorldEntity.Radius;
+                Count = 1;
+                Mass = worldEntity.Mass;
+                MassCenter = worldEntity.MassCenter;}} 
+        private WorldEntity worldEntity;
         public BoundingCircleNode()
         {
         }
-        public BoundingCircleNode(BoundingCircleNode parent, BoundingCircleNode child1, BoundingCircleNode child2)
-        {
-            this.Parent = parent;
-            children[0] = child1;
-            children[1] = child2;
-        }
         #region node-functionality
-        public void Add(IEntity e)
+        public void Add(BoundingCircleNode node)
         {
-            if (children.Length < 2)
+            if (children.Count(x => x != null) < 2)
             {
                 if (children[0] == null)
-                    children[0] = e;
+                    children[0] = node;
                 else if (children[1] == null)
-                    children[1] = e;
-                e.Parent = this;
-                Mass += e.Mass;
-                if(e is BoundingCircleNode node)
-                    Count+=node.Count;
-                else
-                    Count++;
+                    children[1] = node;
+                node.Parent = this;
+                Mass += node.Mass;
+                Count += node.Count;
             }
         }
 
         public void RefitBoundingCircle()
         {
-            if (children.Length == 1)
-                if (children[0] != null)
-                    BoundingCircle = children[0].BoundingCircle; //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
-                else
-                    BoundingCircle = children[1].BoundingCircle;
-
-            else if (children.Length == 2)
+            if (children.Count(x => x != null) == 1)
             {
-                CollidableCircle newBoundingCircle = children[0].BoundingCircle.CombinedBoundingCircle(children[1].BoundingCircle);
-                if (BoundingCircle == null)
-                    BoundingCircle = new();
-                BoundingCircle.Position = newBoundingCircle.Position;
-                BoundingCircle.Radius = newBoundingCircle.Radius;
+                if (children[0] != null){
+                    BoundingCircle = children[0].BoundingCircle; //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
+                    Count = children[0].Count;
+                }
+                else
+                {
+                    BoundingCircle = children[1].BoundingCircle;
+                    Count = children[1].Count;
+                }
+                    
+
             }
-            Position = BoundingCircle.Position;
-            Radius = BoundingCircle.Radius;
+                
+
+            else if (children.Count(x => x != null) == 2)
+            {
+                BoundingCircle = children[0].BoundingCircle.CombinedBoundingCircle(children[1].BoundingCircle);
+                Count = children[0].Count + children[1].Count;
+            }
+            position = BoundingCircle.Position;
+            radius = BoundingCircle.Radius;
 
             UpdateMassCenter();
         }
@@ -85,7 +92,7 @@ namespace OBB_CD_Comparison.src.BVH
         {
             MassCenter = Vector2.Zero;
             Mass = 0;
-            foreach (IEntity child in children)
+            foreach (BoundingCircleNode child in children)
                 if (child != null)
                 {
                     Mass += child.Mass;
@@ -97,11 +104,13 @@ namespace OBB_CD_Comparison.src.BVH
         public void Reset()
         {
             BoundingCircle = null;
+            worldEntity = null;
             children[0] = null;
             children[1] = null;
             Parent = null;
             Count = 0;
             Radius = 0;
+            Mass = 0;
             position = Vector2.Zero;
             MassCenter = Vector2.Zero;
         }
@@ -109,56 +118,82 @@ namespace OBB_CD_Comparison.src.BVH
         #region update-logic
         public void Draw(SpriteBatch sb)
         {
-            foreach (IEntity c in children)
-                c.Draw(sb);
+            if(WorldEntity != null)
+                WorldEntity.Draw(sb);
+            else
+                foreach (BoundingCircleNode c in children)
+                    if(c != null)
+                        c.Draw(sb);
         }
         public void Update(GameTime gameTime)
         {
-            foreach (IEntity child in children)
-                child.Update(gameTime);
+            if(WorldEntity != null)
+                WorldEntity.Update(gameTime);
+            else
+                foreach (BoundingCircleNode child in children)
+                    if(child != null)
+                        child.Update(gameTime);
         }
 
-        internal void InternalCollission()
+        public void InternalCollission()
         {
-            if (children.Length == 2)
+            if (children.Count(x => x != null) == 2)
                 children[0].Collide(children[1]);
-            if (children[0] != null && children[0] is BoundingCircleNode node1)
-                node1.InternalCollission();
-            if (children[1] != null && children[0] is BoundingCircleNode node2)
-                node2.InternalCollission();
+            if (children[0] != null)
+                children[0].InternalCollission();
+            if (children[1] != null)
+                children[1].InternalCollission();
         }
 
-        public void Collide(IEntity e)
+        public void Collide(BoundingCircleNode node)
         {
-            if (BoundingCircle.CollidesWith(e.BoundingCircle))
+            if (BoundingCircle.CollidesWith(node.BoundingCircle))
             {
-                if (e is BoundingCircleNode node)
+                if(WorldEntity == null)
                 {
-                    foreach (IEntity childE in node.children)
-                        Collide(childE);
+                    foreach (BoundingCircleNode child in children)
+                        if(child != null)
+                            child.Collide(node);
                 }
-                else
-                    foreach (IEntity child in children)
-                        child.Collide(e);
+                else if(node.WorldEntity == null)
+                {
+                    foreach (BoundingCircleNode childOther in node.children)
+                        if(childOther != null)
+                            Collide(childOther);
+                }
+                else //OBS: detta behöver optimeras rejält
+                {
+                    WorldEntity.GenerateAxes();
+                    node.WorldEntity.GenerateAxes();
+                    WorldEntity.Collide(node.WorldEntity);
+                    node.WorldEntity.Collide(WorldEntity);
+                }
             }
         }
-        internal void ApplyInternalGravity()
+        public void ApplyInternalGravity()
         {
             Vector2 distanceFromController;
-            foreach (IEntity entity in children)
+            foreach (BoundingCircleNode child in children)
             {
-                distanceFromController = MassCenter - entity.MassCenter; // OBSOBSOBS make this depend on the distance of the worldentity, not the controller 
-                if (distanceFromController.Length() > 1)//entity.Radius)
-                    entity.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - entity.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
-                if (entity is BoundingCircleNode node)
-                    node.ApplyInternalGravity();
+                if (child != null)
+                {
+                    distanceFromController = MassCenter - child.MassCenter; // OBSOBSOBS make this depend on the distance of the worldentity, not the controller 
+                    if (distanceFromController.Length() > 1)//entity.Radius)
+                        child.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                    if (child is BoundingCircleNode node)
+                        node.ApplyInternalGravity();
+                }
             }
         }
 
         public void AccelerateTo(Vector2 position, float force)
         {
-            foreach (IEntity e in children)
-                e.AccelerateTo(position, force);
+            if(WorldEntity != null)
+                WorldEntity.AccelerateTo(position, force);
+            else
+                foreach (BoundingCircleNode node in children)
+                    if (node != null)
+                        node.AccelerateTo(position, force);
         }
         #endregion
     }
