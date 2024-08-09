@@ -124,10 +124,12 @@ namespace OBB_CD_Comparison.src.BVH
         {
             if (WorldEntity != null)
                 WorldEntity.Draw(sb);
-            else
+            else{
+                sb.DrawString(Game1.font, ((int)Mass).ToString(), MassCenter, Color.Red);
                 foreach (BoundingCircleNode c in children)
                     if (c != null)
                         c.Draw(sb);
+            }
         }
         public void Update(GameTime gameTime)
         {
@@ -183,18 +185,16 @@ namespace OBB_CD_Comparison.src.BVH
             if(children[0] != null)
                 children[0].ApplyInternalGravityNLOGN();
             if(children[1] != null)
-                children[1].ApplyInternalGravityNLOGN();/*
-            foreach (BoundingCircleNode child in children)
+                children[1].ApplyInternalGravityNLOGN();
+            /*foreach (BoundingCircleNode child in children)
             {
                 if (child != null)
-                {
-                    distanceFromController = MassCenter - child.MassCenter; // OBSOBSOBS make this depend on the distance of the worldentity, not the controller 
-                                                                            //if (distanceFromController.Length() > 1)//entity.Radius)
-                                                                            //child.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
-                    child.ApplyGravityTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass));
+                {                     
+                    float distanceFromController = (MassCenter - child.MassCenter).Length();
+                    if (distanceFromController > 1)//entity.Radius)
+                        child.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass) / (float)Math.Pow((distanceFromController), 1)); //2d gravity r is raised to 1
 
-                    if (child is BoundingCircleNode node)
-                        node.ApplyInternalGravityNLOGN();
+                    child.ApplyInternalGravityNLOGN();
                 }
             }*/
         }

@@ -18,6 +18,7 @@ namespace OBB_CD_Comparison.src
         public static int ScreenWidth;
         public static int ScreenHeight;
         public static float GRAVITY = 10;
+        public static SpriteFont font;
 
         public Game1()
         {
@@ -43,6 +44,7 @@ namespace OBB_CD_Comparison.src
             _graphics.ApplyChanges();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
+            font = Content.Load<SpriteFont>("font");
             //Sprite spriteParticle = new Sprite(textureParticle);
             controllerTree = new BoundingCircleTree();
             /*
