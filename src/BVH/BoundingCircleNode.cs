@@ -135,17 +135,17 @@ namespace OBB_CD_Comparison.src.BVH
                         child.Update(gameTime);
         }
 
-        public void InternalCollission()
+        public void GetInternalCollissions(List<(WorldEntity, WorldEntity)> collissions)
         {
             if (children.Count(x => x != null) == 2)
-                children[0].Collide(children[1]);
+                children[0].Collide(children[1], collissions);
             if (children[0] != null)
-                children[0].InternalCollission();
+                children[0].GetInternalCollissions(collissions);
             if (children[1] != null)
-                children[1].InternalCollission();
+                children[1].GetInternalCollissions(collissions);
         }
 
-        public void Collide(BoundingCircleNode node)
+        public void Collide(BoundingCircleNode node, List<(WorldEntity, WorldEntity)> collissions)
         {
             if (BoundingCircle.CollidesWith(node.BoundingCircle))
             {
@@ -153,20 +153,20 @@ namespace OBB_CD_Comparison.src.BVH
                 {
                     foreach (BoundingCircleNode child in children)
                         if(child != null)
-                            child.Collide(node);
+                            child.Collide(node, collissions);
                 }
                 else if(node.WorldEntity == null)
                 {
                     foreach (BoundingCircleNode childOther in node.children)
                         if(childOther != null)
-                            Collide(childOther);
+                            Collide(childOther, collissions);
                 }
                 else //OBS: detta behöver optimeras rejält
                 {
-                    WorldEntity.GenerateAxes();
-                    node.WorldEntity.GenerateAxes();
-                    WorldEntity.Collide(node.WorldEntity);
-                    node.WorldEntity.Collide(WorldEntity);
+                    collissions.Add((this.WorldEntity, node.WorldEntity));
+                    //node.WorldEntity.GenerateAxes();
+                    //WorldEntity.Collide(node.WorldEntity);
+                    //node.WorldEntity.Collide(WorldEntity);
                 }
             }
         }

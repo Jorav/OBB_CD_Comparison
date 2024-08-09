@@ -14,6 +14,7 @@ namespace OBB_CD_Comparison.src.BVH
         public float Radius { get { return root.Radius; } }
         BoundingCircleNode root;
         private Stack<BoundingCircleNode> freeNodes = new();
+        public static List<(WorldEntity, WorldEntity)> CollissionPairs = new();
 
         public BoundingCircleTree()
         {
@@ -126,7 +127,24 @@ namespace OBB_CD_Comparison.src.BVH
             root.Update(gameTime);
             RebuildTree();
             root.ApplyInternalGravity();
-            root.InternalCollission();
+            root.GetInternalCollissions(CollissionPairs);
+            ResolveInternalCollissions();
+        }
+
+        private void ResolveInternalCollissions()
+        {
+            HashSet<WorldEntity> entities = new();
+            foreach((WorldEntity, WorldEntity) pair in CollissionPairs){
+                entities.Add(pair.Item1);
+                entities.Add(pair.Item2);
+            }
+            foreach(WorldEntity we in entities)
+                we.GenerateAxes();
+            foreach((WorldEntity, WorldEntity) pair in CollissionPairs){
+                pair.Item1.Collide(pair.Item2);
+                pair.Item2.Collide(pair.Item1);
+            }
+            CollissionPairs.Clear();
         }
 
         private void RebuildTree()

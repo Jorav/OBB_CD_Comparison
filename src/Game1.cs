@@ -53,7 +53,7 @@ namespace OBB_CD_Comparison.src
             controllerTree.Add(new WorldEntity(textureParticle, new Vector2(3,300)));
             controllerTree.Add(new WorldEntity(textureParticle, new Vector2(500,5)));
             controllerTree.Add(new WorldEntity(textureParticle, new Vector2(110,0)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(232,300)));*/
+            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(232,300)));*/   
 
             string[] ConfigVar = EntityFactory.ReadConfig();
             GRAVITY= float.Parse(ConfigVar[2]);

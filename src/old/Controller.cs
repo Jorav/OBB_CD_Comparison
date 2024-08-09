@@ -57,14 +57,14 @@ namespace OBB_CD_Comparison.src.old
                 List<WorldEntity> oldControllables = Entities;
                 entities = new List<WorldEntity>();
                 foreach (WorldEntity c in newControllables)
-                    AddEntity(c);
+                    Add(c);
                 if (Entities.Count == 0)
                 {
                     Entities = oldControllables;
                 }
             }
         }
-        public virtual void AddEntity(WorldEntity c)
+        public virtual void Add(WorldEntity c)
         {
             if (entities == null)
             {
@@ -92,6 +92,7 @@ namespace OBB_CD_Comparison.src.old
             UpdatePosition();
             UpdateRadius();
             ApplyInternalGravity();
+            //generateAxes();
             InternalCollission();
         }
 
@@ -101,8 +102,29 @@ namespace OBB_CD_Comparison.src.old
             {
                 foreach (WorldEntity c2 in Entities)
                 {
-                    if (c1 != c2)
+                    c1.GenerateAxes();
+                    c2.GenerateAxes();
+                    if (c1 != c2 && c1.CollidesWith(c2)){
                         c1.Collide(c2);
+                        c2.Collide(c1);
+                    }
+                        
+                }
+            }
+        }
+        protected void InternalCollissionPreGeneration()
+        {
+            foreach(WorldEntity we in Entities)
+                we.GenerateAxes();
+            foreach (WorldEntity c1 in Entities)
+            {
+                foreach (WorldEntity c2 in Entities)
+                {
+                    if (c1 != c2 && c1.CollidesWith(c2)){
+                        c1.Collide(c2);
+                        c2.Collide(c1);
+                    }
+                        
                 }
             }
         }

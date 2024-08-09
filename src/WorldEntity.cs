@@ -12,7 +12,7 @@ namespace OBB_CD_Comparison.src
         protected Sprite sprite = null;
         public bool IsVisible { get { return sprite.isVisible; } set { sprite.isVisible = value; } }
         public CollidableRectangle OBB;
-        public CollidableCircle BoundingCircle {get; set;}
+        public CollidableCircle BoundingCircle { get; set; }
         public override Vector2 Position
         {
             get { return position; }
@@ -49,7 +49,7 @@ namespace OBB_CD_Comparison.src
         public float Radius { get { return BoundingCircle.Radius; } }
         public bool IsCollidable { get; set; }
         public BoundingCircleNode Parent { get; set; }
-        public Vector2 MassCenter { get {return position;}}
+        public Vector2 MassCenter { get { return position; } }
         public static float REPULSIONDISTANCE = 100;
         #endregion
         public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
@@ -75,37 +75,35 @@ namespace OBB_CD_Comparison.src
         }
         public void Collide(IEntity e)
         {
-            if (e is WorldEntity we){
+            if (e is WorldEntity we)
+            {
                 we.GenerateAxes();
                 GenerateAxes();
                 Collide(we);
                 we.Collide(this);
             }
-            else if (e is BoundingCircleNode bvh){
-                foreach(IEntity entity in bvh.children)
+            else if (e is BoundingCircleNode bvh)
+            {
+                foreach (IEntity entity in bvh.children)
                     Collide(entity);
             }
         }
         public void Collide(WorldEntity e)
         {
-            //collision direct
-            if (CollidesWith(e))
-            {
-                //collission repulsion
-                Vector2 vectorFromOther = e.Position - position;
-                float distance = vectorFromOther.Length();
-                vectorFromOther.Normalize();
-                Vector2 collissionRepulsion = 0.5f * Vector2.Normalize(-vectorFromOther) * (Vector2.Dot(velocity, vectorFromOther)*Mass + Vector2.Dot(e.Velocity, -vectorFromOther)*e.Mass); //make velocity depend on position
-                TotalExteriorForce += collissionRepulsion;
+            //collission repulsion
+            Vector2 vectorFromOther = e.Position - position;
+            float distance = vectorFromOther.Length();
+            vectorFromOther.Normalize();
+            Vector2 collissionRepulsion = 0.5f * Vector2.Normalize(-vectorFromOther) * (Vector2.Dot(velocity, vectorFromOther) * Mass + Vector2.Dot(e.Velocity, -vectorFromOther) * e.Mass); //make velocity depend on position
+            TotalExteriorForce += collissionRepulsion;
 
-                //overlap repulsion
-                float distance2 = (position - e.Position).Length();
-                if (distance2 < 5)
-                    distance2 = 5;
-                float radius = Radius * (e.Mass + Mass)/2;
-                Vector2 overlapRepulsion = 500f * Vector2.Normalize(position - e.Position) / distance2;
-                TotalExteriorForce += overlapRepulsion;
-            }
+            //overlap repulsion
+            float distance2 = (position - e.Position).Length();
+            if (distance2 < 5)
+                distance2 = 5;
+            float radius = Radius * (e.Mass + Mass) / 2;
+            Vector2 overlapRepulsion = 500f * Vector2.Normalize(position - e.Position) / distance2;
+            TotalExteriorForce += overlapRepulsion;
         }
         public void GenerateAxes()
         {
