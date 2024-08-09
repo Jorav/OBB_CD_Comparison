@@ -22,7 +22,7 @@ namespace OBB_CD_Comparison.src.BVH
             {
                 Vector2 posChange = value - Position;
                 foreach (BoundingCircleNode c in children)
-                    if(c != null)
+                    if (c != null)
                         c.Position += posChange;
                 position = value;
             }
@@ -32,15 +32,20 @@ namespace OBB_CD_Comparison.src.BVH
         public int Count { get; set; }
         public Vector2 MassCenter { get; private set; }
         public CollidableCircle BoundingCircle { get; private set; }
-        public WorldEntity WorldEntity {//=!null implies leaf
-            get{return worldEntity;} 
-            set{worldEntity = value;
+        public WorldEntity WorldEntity
+        {//=!null implies leaf
+            get { return worldEntity; }
+            set
+            {
+                worldEntity = value;
                 BoundingCircle = worldEntity.BoundingCircle;
                 position = worldEntity.Position;
                 radius = WorldEntity.Radius;
                 Count = 1;
                 Mass = worldEntity.Mass;
-                MassCenter = worldEntity.MassCenter;}} 
+                MassCenter = worldEntity.MassCenter;
+            }
+        }
         private WorldEntity worldEntity;
         public BoundingCircleNode()
         {
@@ -64,7 +69,8 @@ namespace OBB_CD_Comparison.src.BVH
         {
             if (children.Count(x => x != null) == 1)
             {
-                if (children[0] != null){
+                if (children[0] != null)
+                {
                     BoundingCircle = children[0].BoundingCircle; //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
                     Count = children[0].Count;
                 }
@@ -73,11 +79,7 @@ namespace OBB_CD_Comparison.src.BVH
                     BoundingCircle = children[1].BoundingCircle;
                     Count = children[1].Count;
                 }
-                    
-
             }
-                
-
             else if (children.Count(x => x != null) == 2)
             {
                 BoundingCircle = children[0].BoundingCircle.CombinedBoundingCircle(children[1].BoundingCircle);
@@ -93,11 +95,13 @@ namespace OBB_CD_Comparison.src.BVH
             MassCenter = Vector2.Zero;
             Mass = 0;
             foreach (BoundingCircleNode child in children)
+            {
                 if (child != null)
                 {
                     Mass += child.Mass;
                     MassCenter += child.MassCenter * child.Mass;
                 }
+            }
             MassCenter /= Mass;
         }
 
@@ -118,20 +122,20 @@ namespace OBB_CD_Comparison.src.BVH
         #region update-logic
         public void Draw(SpriteBatch sb)
         {
-            if(WorldEntity != null)
+            if (WorldEntity != null)
                 WorldEntity.Draw(sb);
             else
                 foreach (BoundingCircleNode c in children)
-                    if(c != null)
+                    if (c != null)
                         c.Draw(sb);
         }
         public void Update(GameTime gameTime)
         {
-            if(WorldEntity != null)
+            if (WorldEntity != null)
                 WorldEntity.Update(gameTime);
             else
                 foreach (BoundingCircleNode child in children)
-                    if(child != null)
+                    if (child != null)
                         child.Update(gameTime);
         }
 
@@ -149,16 +153,16 @@ namespace OBB_CD_Comparison.src.BVH
         {
             if (BoundingCircle.CollidesWith(node.BoundingCircle))
             {
-                if(WorldEntity == null)
+                if (WorldEntity == null)
                 {
                     foreach (BoundingCircleNode child in children)
-                        if(child != null)
+                        if (child != null)
                             child.Collide(node, collissions);
                 }
-                else if(node.WorldEntity == null)
+                else if (node.WorldEntity == null)
                 {
                     foreach (BoundingCircleNode childOther in node.children)
-                        if(childOther != null)
+                        if (childOther != null)
                             Collide(childOther, collissions);
                 }
                 else
@@ -167,25 +171,51 @@ namespace OBB_CD_Comparison.src.BVH
                 }
             }
         }
-        public void ApplyInternalGravityNLOGN()
+        public void ApplyInternalGravityNLOGN() //does not scale well... poor tree due to incremental?
         {
             Vector2 distanceFromController;
+            if(children[0] != null){
+                if(children[1] != null){
+                    children[0].ApplyGravityTo(children[1].MassCenter, Game1.GRAVITY*children[1].Mass);
+                    children[1].ApplyGravityTo(children[0].MassCenter, Game1.GRAVITY*children[0].Mass);
+                }
+            }
+            if(children[0] != null)
+                children[0].ApplyInternalGravityNLOGN();
+            if(children[1] != null)
+                children[1].ApplyInternalGravityNLOGN();/*
             foreach (BoundingCircleNode child in children)
             {
                 if (child != null)
                 {
                     distanceFromController = MassCenter - child.MassCenter; // OBSOBSOBS make this depend on the distance of the worldentity, not the controller 
-                    if (distanceFromController.Length() > 1)//entity.Radius)
-                        child.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                                                                            //if (distanceFromController.Length() > 1)//entity.Radius)
+                                                                            //child.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                    child.ApplyGravityTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass));
+
                     if (child is BoundingCircleNode node)
                         node.ApplyInternalGravityNLOGN();
                 }
+            }*/
+        }
+
+        private void ApplyGravityTo(Vector2 massCenter, float forceBeforeDistance)
+        {
+            if (WorldEntity != null)
+            {
+                float distanceFromController = (massCenter - WorldEntity.MassCenter).Length();
+                if (distanceFromController > 1)
+                    WorldEntity.AccelerateTo(massCenter, forceBeforeDistance / distanceFromController);
             }
+            else
+                foreach (BoundingCircleNode node in children)
+                    if (node != null)
+                        node.ApplyGravityTo(massCenter, forceBeforeDistance);
         }
 
         public void AccelerateTo(Vector2 position, float force)
         {
-            if(WorldEntity != null)
+            if (WorldEntity != null)
                 WorldEntity.AccelerateTo(position, force);
             else
                 foreach (BoundingCircleNode node in children)
