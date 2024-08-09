@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -14,7 +15,8 @@ namespace OBB_CD_Comparison.src.BVH
         public float Radius { get { return root.Radius; } }
         BoundingCircleNode root;
         private Stack<BoundingCircleNode> freeNodes = new();
-        public static List<(WorldEntity, WorldEntity)> CollissionPairs = new();
+        private HashSet<WorldEntity> worldEntities = new();
+        public List<(WorldEntity, WorldEntity)> CollissionPairs = new();
 
         public BoundingCircleTree()
         {
@@ -22,6 +24,7 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Add(WorldEntity we)
         {
+            worldEntities.Add(we);
             BoundingCircleNode leaf = AllocateLeafNode(we);
             if (root == null)
             {
@@ -126,9 +129,28 @@ namespace OBB_CD_Comparison.src.BVH
         {
             root.Update(gameTime);
             RebuildTree();
-            root.ApplyInternalGravity();
+            root.ApplyInternalGravityNLOGN();
+            //ApplyInternalGravityN();
+            //ApplyInternalGravityN2();
             root.GetInternalCollissions(CollissionPairs);
             ResolveInternalCollissions();
+        }
+
+        private void ApplyInternalGravityN(){
+            Vector2 distanceFromController;
+            foreach (WorldEntity entity in worldEntities)
+            {
+                distanceFromController = root.MassCenter - entity.Position;
+                if (distanceFromController.Length() > entity.Radius)
+                    entity.Accelerate(Vector2.Normalize(root.MassCenter - entity.Position), Game1.GRAVITY*(root.Mass-entity.Mass)*entity.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                //entity.Accelerate(Vector2.Normalize(Position - entity.Position), (float)Math.Pow(((distanceFromController.Length() - entity.Radius) / AverageDistance()) / 2 * entity.Mass, 2));
+            }
+        }
+        private void ApplyInternalGravityN2(){
+            foreach(WorldEntity we1 in worldEntities)
+                foreach(WorldEntity we2 in worldEntities)
+                    if(we1 != we2)
+                        we1.AccelerateTo(we2.Position, Game1.GRAVITY * we1.Mass * we2.Mass / (float)Math.Pow(((we1.Position - we2.Position).Length()), 1));
         }
 
         private void ResolveInternalCollissions()
@@ -149,7 +171,6 @@ namespace OBB_CD_Comparison.src.BVH
 
         private void RebuildTree()
         {
-            Stack<WorldEntity> entities = new();
             Stack<BoundingCircleNode> nodesToRebuild = new();
 
             nodesToRebuild.Push(root);
@@ -161,16 +182,14 @@ namespace OBB_CD_Comparison.src.BVH
                 {
                     if (child != null)
                     {
-                        if (child.WorldEntity != null)
-                            entities.Push(child.WorldEntity);
-                        else
+                        if (child.WorldEntity == null)
                             nodesToRebuild.Push(child);
                     }
                 }
                 freeNodes.Push(currentNode);
             }
             root = null;
-            foreach (WorldEntity we in entities)
+            foreach (WorldEntity we in worldEntities)
                 Add(we);
         }
     }

@@ -161,16 +161,13 @@ namespace OBB_CD_Comparison.src.BVH
                         if(childOther != null)
                             Collide(childOther, collissions);
                 }
-                else //OBS: detta behöver optimeras rejält
+                else
                 {
                     collissions.Add((this.WorldEntity, node.WorldEntity));
-                    //node.WorldEntity.GenerateAxes();
-                    //WorldEntity.Collide(node.WorldEntity);
-                    //node.WorldEntity.Collide(WorldEntity);
                 }
             }
         }
-        public void ApplyInternalGravity()
+        public void ApplyInternalGravityNLOGN()
         {
             Vector2 distanceFromController;
             foreach (BoundingCircleNode child in children)
@@ -181,7 +178,7 @@ namespace OBB_CD_Comparison.src.BVH
                     if (distanceFromController.Length() > 1)//entity.Radius)
                         child.AccelerateTo(MassCenter, Game1.GRAVITY * (Mass - child.Mass) / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
                     if (child is BoundingCircleNode node)
-                        node.ApplyInternalGravity();
+                        node.ApplyInternalGravityNLOGN();
                 }
             }
         }
