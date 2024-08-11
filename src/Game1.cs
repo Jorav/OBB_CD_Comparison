@@ -15,6 +15,7 @@ namespace OBB_CD_Comparison.src
         private BoundingCircleTree controllerTree;
         private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
+        private MeanSquareError meanSquareError;
         public static int ScreenWidth;
         public static int ScreenHeight;
         public static float GRAVITY = 10;
@@ -40,7 +41,6 @@ namespace OBB_CD_Comparison.src
         protected override void LoadContent()
         {
             // use this and Content to load your game content here
-            performanceMeasurer = new PerformanceMeasurer();
             _graphics.ApplyChanges();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
@@ -66,6 +66,9 @@ namespace OBB_CD_Comparison.src
                 controllerTree.Add(w);
             }*/
             camera = new Camera(controllerTree) { AutoAdjustZoom = true };
+            performanceMeasurer = new PerformanceMeasurer();
+            meanSquareError = new MeanSquareError(returnedList.ToArray());
+            meanSquareError.LoadPreviousPositions();
         }
 
         protected override void Update(GameTime gameTime)
@@ -76,6 +79,7 @@ namespace OBB_CD_Comparison.src
             controllerTree.Update(gameTime);
             camera.Update();
             performanceMeasurer.Update(gameTime);
+            meanSquareError.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -93,6 +97,7 @@ namespace OBB_CD_Comparison.src
         protected override void OnExiting(object sender, EventArgs args)
         {
             performanceMeasurer.Exit();
+            meanSquareError.Exit();
             base.OnExiting(sender, args);
         }
     }
