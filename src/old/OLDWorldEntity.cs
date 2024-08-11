@@ -13,7 +13,7 @@ namespace OBB_CD_Comparison.src.old
         protected Sprite sprite = null;
         public bool IsVisible { get { return sprite.isVisible; } set { sprite.isVisible = value; } }
         public OrientedBoundingBox OBB;
-        public CollidableCircle BoundingCircle {get; set;}
+        public BoundingCircle BoundingCircle {get; set;}
         public override Vector2 Position
         {
             get { return position; }
@@ -58,7 +58,7 @@ namespace OBB_CD_Comparison.src.old
         {
             this.sprite = new Sprite(texture);
             OBB = new OrientedBoundingBox(position, rotation, sprite.Width, sprite.Height);
-            BoundingCircle = new CollidableCircle(position, OBB.Radius);
+            BoundingCircle = new BoundingCircle(position, OBB.Radius);
             Position = position;
             Rotation = rotation;
             IsVisible = isVisible;

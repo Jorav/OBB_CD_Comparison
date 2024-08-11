@@ -108,6 +108,8 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Reset()
         {
+            if(worldEntity == null)
+                BoundingAreaFactory.AABBs.Push(AABB);
             AABB = null;
             worldEntity = null;
             children[0] = null;

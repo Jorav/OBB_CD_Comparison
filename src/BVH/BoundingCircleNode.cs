@@ -32,7 +32,7 @@ namespace OBB_CD_Comparison.src.BVH
         public float Mass { get; set; }
         public int Count { get; set; }
         public Vector2 MassCenter { get; private set; }
-        public CollidableCircle BoundingCircle { get; private set; }
+        public BoundingCircle BoundingCircle { get; private set; }
         public WorldEntity WorldEntity
         {//=!null implies leaf
             get { return worldEntity; }
@@ -108,6 +108,8 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Reset()
         {
+            if(worldEntity == null)
+                BoundingAreaFactory.circles.Push(BoundingCircle);
             BoundingCircle = null;
             worldEntity = null;
             children[0] = null;

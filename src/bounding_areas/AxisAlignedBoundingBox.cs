@@ -34,6 +34,11 @@ namespace OBB_CD_Comparison.src.bounding_areas
 
         public AxisAlignedBoundingBox(Vector2 upperLeftCorner, int width, int height)
         {
+            SetBox(upperLeftCorner,width,height);
+        }
+
+        public void SetBox(Vector2 upperLeftCorner, int width, int height)
+        {
             UL = new Vector2(upperLeftCorner.X, upperLeftCorner.Y);
             DL = new Vector2(upperLeftCorner.X, upperLeftCorner.Y + height);
             DR = new Vector2(upperLeftCorner.X + width, upperLeftCorner.Y + height);
