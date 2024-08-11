@@ -60,10 +60,11 @@ namespace OBB_CD_Comparison.src
             string[] ConfigVar = EntityFactory.ReadConfig();
             GRAVITY= float.Parse(ConfigVar[2]);
             List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
-            foreach(WorldEntity w in returnedList)
+            controllerTree.root = controllerTree.CreateTreeTopDown(null, returnedList);
+            /*foreach(WorldEntity w in returnedList)
             {
                 controllerTree.Add(w);
-            }
+            }*/
             camera = new Camera(controllerTree) { AutoAdjustZoom = true };
         }
 

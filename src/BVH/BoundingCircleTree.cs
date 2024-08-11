@@ -13,7 +13,7 @@ namespace OBB_CD_Comparison.src.BVH
     {
         public Vector2 Position { get { return root.Position; } }
         public float Radius { get { return root.Radius; } }
-        BoundingCircleNode root;
+        public BoundingCircleNode root;
         private Stack<BoundingCircleNode> freeNodes = new();
         private HashSet<WorldEntity> worldEntities = new();
         public List<(WorldEntity, WorldEntity)> CollissionPairs = new();
@@ -24,7 +24,6 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Add(WorldEntity we)
         {
-            worldEntities.Add(we);
             BoundingCircleNode leaf = AllocateLeafNode(we);
             if (root == null)
             {
@@ -62,10 +61,58 @@ namespace OBB_CD_Comparison.src.BVH
             } while (parent != null);
         }
 
+        //for root: parent = null, newEntities is worldEntities
+        public BoundingCircleNode CreateTreeTopDown(BoundingCircleNode parent, List<WorldEntity> newEntities)
+        {
+            //step 0: HANDLE EDGE-CASES
+            if (parent == null)
+                UnravelTree();
+
+            if (newEntities.Count == 0)
+                return null;
+
+            if (newEntities.Count == 1)
+            {
+                return AllocateLeafNode(newEntities[0]);
+            }
+            //TODO: if node==root, remove current tree if it exists and add worldEntities to newEntities
+
+
+            //step 1: DECIDE WHAT AXIS TO SPLIT
+            float minX = float.MaxValue;
+            float minY = float.MaxValue;
+            float maxX = float.MinValue;
+            float maxY = float.MinValue;
+            foreach (WorldEntity we in newEntities)
+            {
+                if (we.Position.X > maxX)
+                    maxX = we.Position.X;
+                else if (we.Position.X < minX)
+                    minX = we.Position.X;
+                if (we.Position.Y > maxY)
+                    maxY = we.Position.Y;
+                else if (we.Position.Y < minY)
+                    minY = we.Position.Y;
+
+            }
+            bool splitOnX = (maxX - minX) > (maxY - minY);
+
+            //step 2: SPLIT ON CHOSEN AXIS
+            if (splitOnX)
+                newEntities.Sort((we1, we2) => we1.Position.X.CompareTo(we2.Position.X));
+            else
+                newEntities.Sort((we1, we2) => we1.Position.Y.CompareTo(we2.Position.Y));
+            BoundingCircleNode node = AllocateNode();
+            node.Add(CreateTreeTopDown(node, newEntities.GetRange(0, newEntities.Count / 2)));
+            node.Add(CreateTreeTopDown(node, newEntities.GetRange(newEntities.Count / 2, newEntities.Count / 2 + newEntities.Count % 2)));
+            node.RefitBoundingCircle();
+            return node;
+        }
         private BoundingCircleNode AllocateLeafNode(WorldEntity we)
         {
             BoundingCircleNode leafNode = AllocateNode();
             leafNode.WorldEntity = we;
+            worldEntities.Add(we);
             return leafNode;
         }
 
@@ -124,7 +171,8 @@ namespace OBB_CD_Comparison.src.BVH
         public virtual void Update(GameTime gameTime)
         {
             root.Update(gameTime);
-            RebuildTree();
+            //RebuildTree();
+            root = CreateTreeTopDown(null, worldEntities.ToList());
             root.ApplyInternalGravityNLOGN();
             //ApplyInternalGravityN();
             //ApplyInternalGravityN2();
@@ -174,26 +222,31 @@ namespace OBB_CD_Comparison.src.BVH
 
         private void RebuildTree()
         {
-            Stack<BoundingCircleNode> nodesToRebuild = new();
-
-            nodesToRebuild.Push(root);
-
-            while (nodesToRebuild.Count > 0)
-            {
-                BoundingCircleNode currentNode = nodesToRebuild.Pop();
-                foreach (BoundingCircleNode child in currentNode.children)
-                {
-                    if (child != null)
-                    {
-                        if (child.WorldEntity == null)
-                            nodesToRebuild.Push(child);
-                    }
-                }
-                freeNodes.Push(currentNode);
-            }
-            root = null;
+            UnravelTree();
             foreach (WorldEntity we in worldEntities)
                 Add(we);
+        }
+        private void UnravelTree()
+        {
+            if (root != null)
+            {
+                Stack<BoundingCircleNode> nodesToRemove = new();
+                nodesToRemove.Push(root);
+                while (nodesToRemove.Count > 0)
+                {
+                    BoundingCircleNode currentNode = nodesToRemove.Pop();
+                    foreach (BoundingCircleNode child in currentNode.children)
+                    {
+                        if (child != null)
+                        {
+                            if (child.WorldEntity == null)
+                                nodesToRemove.Push(child);
+                        }
+                    }
+                    freeNodes.Push(currentNode);
+                }
+                root = null;
+            }
         }
     }
 
