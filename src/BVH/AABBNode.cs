@@ -10,10 +10,10 @@ using OBB_CD_Comparison.src.bounding_areas;
 
 namespace OBB_CD_Comparison.src.BVH
 {
-    public class BoundingCircleNode : IEntity
+    public class AABBNode : IEntity
     {
-        public BoundingCircleNode Parent { get; set; }
-        public BoundingCircleNode[] children = new BoundingCircleNode[2];
+        public AABBNode Parent { get; set; }
+        public AABBNode[] children = new AABBNode[2];
         public float Radius { get { return radius; } protected set { radius = value; } }
         protected float radius;
         public Vector2 Position
@@ -22,7 +22,7 @@ namespace OBB_CD_Comparison.src.BVH
             set
             {
                 Vector2 posChange = value - Position;
-                foreach (BoundingCircleNode c in children)
+                foreach (AABBNode c in children)
                     if (c != null)
                         c.Position += posChange;
                 position = value;
@@ -32,14 +32,14 @@ namespace OBB_CD_Comparison.src.BVH
         public float Mass { get; set; }
         public int Count { get; set; }
         public Vector2 MassCenter { get; private set; }
-        public CollidableCircle BoundingCircle { get; private set; }
+        public AxisAlignedBoundingBox AABB { get; private set; }
         public WorldEntity WorldEntity
         {//=!null implies leaf
             get { return worldEntity; }
             set
             {
                 worldEntity = value;
-                BoundingCircle = worldEntity.BoundingCircle;
+                AABB = new AxisAlignedBoundingBox(worldEntity.Position-new Vector2(worldEntity.OBB.Width/2, worldEntity.OBB.Height/2), (int)worldEntity.OBB.Width, (int)WorldEntity.OBB.Height);
                 position = worldEntity.Position;
                 radius = WorldEntity.Radius;
                 Count = 1;
@@ -48,11 +48,11 @@ namespace OBB_CD_Comparison.src.BVH
             }
         }
         private WorldEntity worldEntity;
-        public BoundingCircleNode()
+        public AABBNode()
         {
         }
         #region node-functionality
-        public void Add(BoundingCircleNode node)
+        public void Add(AABBNode node)
         {
             if (children.Count(x => x != null) < 2)
             {
@@ -66,28 +66,28 @@ namespace OBB_CD_Comparison.src.BVH
             }
         }
 
-        public void RefitBoundingCircle()
+        public void RefitBoundingBox()
         {
             if (children.Count(x => x != null) == 1)
             {
                 if (children[0] != null)
                 {
-                    BoundingCircle = children[0].BoundingCircle; //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
+                    AABB = children[0].AABB; //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
                     Count = children[0].Count;
                 }
                 else
                 {
-                    BoundingCircle = children[1].BoundingCircle;
+                    AABB = children[1].AABB;
                     Count = children[1].Count;
                 }
             }
             else if (children.Count(x => x != null) == 2)
             {
-                BoundingCircle = children[0].BoundingCircle.CombinedBoundingCircle(children[1].BoundingCircle);
+                AABB = children[0].AABB.CombinedAABB(children[1].AABB);
                 Count = children[0].Count + children[1].Count;
             }
-            position = BoundingCircle.Position;
-            radius = BoundingCircle.Radius;
+            position = AABB.Position;
+            radius = AABB.Radius;
 
             UpdateMassCenter();
         }
@@ -95,7 +95,7 @@ namespace OBB_CD_Comparison.src.BVH
         {
             MassCenter = Vector2.Zero;
             Mass = 0;
-            foreach (BoundingCircleNode child in children)
+            foreach (AABBNode child in children)
             {
                 if (child != null)
                 {
@@ -108,7 +108,7 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Reset()
         {
-            BoundingCircle = null;
+            AABB = null;
             worldEntity = null;
             children[0] = null;
             children[1] = null;
@@ -129,7 +129,7 @@ namespace OBB_CD_Comparison.src.BVH
                 float scale = 1+((int)Mass/7);
                 Vector2 origin = Vector2.Zero; //new Vector2(-Game1.font.Texture.Width/2, -Game1.font.Texture.Height/2);
                 sb.DrawString(Game1.font, ((int)Mass).ToString(), MassCenter, Color.Red, 0, origin, scale, SpriteEffects.None, 0);
-                foreach (BoundingCircleNode c in children)
+                foreach (AABBNode c in children)
                     if (c != null)
                         c.Draw(sb);
             }
@@ -139,7 +139,7 @@ namespace OBB_CD_Comparison.src.BVH
             if (WorldEntity != null)
                 WorldEntity.Update(gameTime);
             else
-                foreach (BoundingCircleNode child in children)
+                foreach (AABBNode child in children)
                     if (child != null)
                         child.Update(gameTime);
         }
@@ -154,19 +154,19 @@ namespace OBB_CD_Comparison.src.BVH
                 children[1].GetInternalCollissions(collissions);
         }
 
-        public void Collide(BoundingCircleNode node, List<(WorldEntity, WorldEntity)> collissions)
+        public void Collide(AABBNode node, List<(WorldEntity, WorldEntity)> collissions)
         {
-            if (BoundingCircle.CollidesWith(node.BoundingCircle))
+            if (AABB.CollidesWith(node.AABB))
             {
                 if (WorldEntity == null)
                 {
-                    foreach (BoundingCircleNode child in children)
+                    foreach (AABBNode child in children)
                         if (child != null)
                             child.Collide(node, collissions);
                 }
                 else if (node.WorldEntity == null)
                 {
-                    foreach (BoundingCircleNode childOther in node.children)
+                    foreach (AABBNode childOther in node.children)
                         if (childOther != null)
                             Collide(childOther, collissions);
                 }
@@ -211,7 +211,7 @@ namespace OBB_CD_Comparison.src.BVH
                     WorldEntity.AccelerateTo(massCenter, forceBeforeDistance / distanceFromController);
             }
             else
-                foreach (BoundingCircleNode node in children)
+                foreach (AABBNode node in children)
                     if (node != null)
                         node.ApplyGravityTo(massCenter, forceBeforeDistance);
         }
@@ -221,7 +221,7 @@ namespace OBB_CD_Comparison.src.BVH
             if (WorldEntity != null)
                 WorldEntity.AccelerateTo(position, force);
             else
-                foreach (BoundingCircleNode node in children)
+                foreach (AABBNode node in children)
                     if (node != null)
                         node.AccelerateTo(position, force);
         }

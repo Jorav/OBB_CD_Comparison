@@ -3,7 +3,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace OBB_CD_Comparison.src.BVH
+namespace OBB_CD_Comparison.src.bounding_areas
 {
     public class CollidableCircle
     {

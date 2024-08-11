@@ -9,34 +9,34 @@ using System.Text;
 
 namespace OBB_CD_Comparison.src.BVH
 {
-    public class BoundingCircleTree
+    public class AABBTree
     {
         public Vector2 Position { get { return root.Position; } }
         public float Radius { get { return root.Radius; } }
-        public BoundingCircleNode root;
-        private Stack<BoundingCircleNode> freeNodes = new();
+        public AABBNode root;
+        private Stack<AABBNode> freeNodes = new();
         private HashSet<WorldEntity> worldEntities = new();
         public List<(WorldEntity, WorldEntity)> CollissionPairs = new();
 
-        public BoundingCircleTree()
+        public AABBTree()
         {
         }
 
         public void Add(WorldEntity we)
         {
-            BoundingCircleNode leaf = AllocateLeafNode(we);
+            AABBNode leaf = AllocateLeafNode(we);
             if (root == null)
             {
                 root = leaf;
                 return;
             }
             // Stage 1: find the best sibling for the new leaf
-            BoundingCircleNode bestSibling = FindBestSibling(leaf);
+            AABBNode bestSibling = FindBestSibling(leaf);
 
             // Stage 2: create a new parent
 
-            BoundingCircleNode oldParent = bestSibling.Parent;
-            BoundingCircleNode newParent = AllocateNode();
+            AABBNode oldParent = bestSibling.Parent;
+            AABBNode newParent = AllocateNode();
             newParent.Parent = oldParent;
             //newParent.BoundingCircle = Union(box, tree.nodes[sibling].box); done in stage 3
             if (oldParent != null)
@@ -53,16 +53,16 @@ namespace OBB_CD_Comparison.src.BVH
             newParent.Add(bestSibling);
             newParent.Add(leaf);
             // Stage 3: walk back up the tree refitting AABBs
-            BoundingCircleNode parent = newParent;
+            AABBNode parent = newParent;
             do
             {
-                parent.RefitBoundingCircle();
+                parent.RefitBoundingBox();
                 parent = parent.Parent;
             } while (parent != null);
         }
 
         //for root: parent = null, newEntities is worldEntities
-        public BoundingCircleNode CreateTreeTopDown(BoundingCircleNode parent, List<WorldEntity> newEntities)
+        public AABBNode CreateTreeTopDown(AABBNode parent, List<WorldEntity> newEntities)
         {
             //step 0: HANDLE EDGE-CASES
             if (parent == null)
@@ -102,57 +102,57 @@ namespace OBB_CD_Comparison.src.BVH
                 newEntities.Sort((we1, we2) => we1.Position.X.CompareTo(we2.Position.X));
             else
                 newEntities.Sort((we1, we2) => we1.Position.Y.CompareTo(we2.Position.Y));
-            BoundingCircleNode node = AllocateNode();
+            AABBNode node = AllocateNode();
             node.Add(CreateTreeTopDown(node, newEntities.GetRange(0, newEntities.Count / 2)));
             node.Add(CreateTreeTopDown(node, newEntities.GetRange(newEntities.Count / 2, newEntities.Count / 2 + newEntities.Count % 2)));
-            node.RefitBoundingCircle();
+            node.RefitBoundingBox();
             return node;
         }
-        private BoundingCircleNode AllocateLeafNode(WorldEntity we)
+        private AABBNode AllocateLeafNode(WorldEntity we)
         {
-            BoundingCircleNode leafNode = AllocateNode();
+            AABBNode leafNode = AllocateNode();
             leafNode.WorldEntity = we;
             worldEntities.Add(we);
             return leafNode;
         }
 
-        private BoundingCircleNode AllocateNode()
+        private AABBNode AllocateNode()
         {
             if (freeNodes.Count == 0)
-                return new BoundingCircleNode();
+                return new AABBNode();
             else
             {
-                BoundingCircleNode freeNode = freeNodes.Pop();
+                AABBNode freeNode = freeNodes.Pop();
                 freeNode.Reset();
                 return freeNode;
             }
         }
 
-        public BoundingCircleNode FindBestSibling(BoundingCircleNode leafNew)
+        public AABBNode FindBestSibling(AABBNode leafNew)
         {
-            BoundingCircleNode bestSibling = root;
-            float bestCost = root.BoundingCircle.CombinedBoundingCircle(leafNew.BoundingCircle).Area;
-            PriorityQueue<BoundingCircleNode, float> queue = new();
+            AABBNode bestSibling = root;
+            float bestCost = root.AABB.CombinedAABB(leafNew.AABB).Area;
+            PriorityQueue<AABBNode, float> queue = new();
             queue.Enqueue(root, 0);
 
             while (queue.Count > 0)
             {
                 queue.TryDequeue(
-                        out BoundingCircleNode currentNode,
+                        out AABBNode currentNode,
                         out float inheritedCost
                 );
 
                 if (inheritedCost >= bestCost)
                     return bestSibling;
-                float combinedArea = currentNode.BoundingCircle.CombinedBoundingCircle(leafNew.BoundingCircle).Area;
+                float combinedArea = currentNode.AABB.CombinedAABB(leafNew.AABB).Area;
                 float currentCost = combinedArea + inheritedCost;
                 if (currentCost < bestCost)
                 {
                     bestSibling = currentNode;
                     bestCost = currentCost;
                 }
-                inheritedCost += combinedArea - currentNode.BoundingCircle.Area;
-                float cLow = leafNew.BoundingCircle.Area + inheritedCost;
+                inheritedCost += combinedArea - currentNode.AABB.Area;
+                float cLow = leafNew.AABB.Area + inheritedCost;
                 if (cLow < bestCost)
                 {
                     if (currentNode.children[0] != null)
@@ -230,12 +230,12 @@ namespace OBB_CD_Comparison.src.BVH
         {
             if (root != null)
             {
-                Stack<BoundingCircleNode> nodesToRemove = new();
+                Stack<AABBNode> nodesToRemove = new();
                 nodesToRemove.Push(root);
                 while (nodesToRemove.Count > 0)
                 {
-                    BoundingCircleNode currentNode = nodesToRemove.Pop();
-                    foreach (BoundingCircleNode child in currentNode.children)
+                    AABBNode currentNode = nodesToRemove.Pop();
+                    foreach (AABBNode child in currentNode.children)
                     {
                         if (child != null)
                         {

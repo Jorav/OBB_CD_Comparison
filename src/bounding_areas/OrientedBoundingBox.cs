@@ -1,13 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OBB_CD_Comparison.src
+namespace OBB_CD_Comparison.src.bounding_areas
 {
     //OBS: Old heritage, god knows how this works
-    public class CollidableRectangle
+    public class OrientedBoundingBox
     {
         private Vector2 UL { get; set; }
         private Vector2 DL { get; set; }
@@ -59,7 +59,7 @@ namespace OBB_CD_Comparison.src
         public float Radius;
         Vector2[] axes;
 
-        public CollidableRectangle(Vector2 position, float rotation, int width, int height)
+        public OrientedBoundingBox(Vector2 position, float rotation, int width, int height)
         {
             UL = new Vector2(position.X, position.Y);
             DL = new Vector2(position.X, position.Y + height);
@@ -70,7 +70,7 @@ namespace OBB_CD_Comparison.src
             Rotation = rotation;
             Radius = (float)Math.Sqrt(Math.Pow(Width / 2, 2) + Math.Pow(Height / 2, 2));
         }
-        public bool CollidesWith(CollidableRectangle r)
+        public bool CollidesWith(OrientedBoundingBox r)
         {
             bool collides = true;
             //GenerateAxes();

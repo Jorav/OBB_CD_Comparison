@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OBB_CD_Comparison.src.bounding_areas;
 using OBB_CD_Comparison.src.BVH;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,6 @@ namespace OBB_CD_Comparison.src.BVH
         public Vector2 MassCenter { get; }
         public float Radius { get; }
         public float Mass { get; }
-        public CollidableCircle BoundingCircle { get; }
-        public BoundingCircleNode Parent { get; set; }
         public void Draw(SpriteBatch spriteBatch);
         public void Update(GameTime gameTime);
         void AccelerateTo(Vector2 position, float force);

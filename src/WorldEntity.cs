@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OBB_CD_Comparison.src.bounding_areas;
 using OBB_CD_Comparison.src.BVH;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace OBB_CD_Comparison.src
         #region Properties
         protected Sprite sprite = null;
         public bool IsVisible { get { return sprite.isVisible; } set { sprite.isVisible = value; } }
-        public CollidableRectangle OBB;
+        public OrientedBoundingBox OBB;
         public CollidableCircle BoundingCircle { get; set; }
         public override Vector2 Position
         {
@@ -48,14 +49,13 @@ namespace OBB_CD_Comparison.src
         public float Height { get { return sprite.Height; } }
         public float Radius { get { return BoundingCircle.Radius; } }
         public bool IsCollidable { get; set; }
-        public BoundingCircleNode Parent { get; set; }
         public Vector2 MassCenter { get { return position; } }
         public static float REPULSIONDISTANCE = 100;
         #endregion
         public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
         {
             this.sprite = new Sprite(texture);
-            OBB = new CollidableRectangle(position, rotation, sprite.Width, sprite.Height);
+            OBB = new OrientedBoundingBox(position, rotation, sprite.Width, sprite.Height);
             BoundingCircle = new CollidableCircle(position, OBB.Radius);
             Position = position;
             Rotation = rotation;
@@ -72,21 +72,6 @@ namespace OBB_CD_Comparison.src
         public override void Update(GameTime gameTime) //OBS Ska vara en funktion i thruster
         {
             base.Update(gameTime);
-        }
-        public void Collide(IEntity e)
-        {
-            if (e is WorldEntity we)
-            {
-                we.GenerateAxes();
-                GenerateAxes();
-                Collide(we);
-                we.Collide(this);
-            }
-            else if (e is BoundingCircleNode bvh)
-            {
-                foreach (IEntity entity in bvh.children)
-                    Collide(entity);
-            }
         }
         public void Collide(WorldEntity e)
         {
