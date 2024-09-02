@@ -12,7 +12,7 @@ namespace OBB_CD_Comparison.src
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private BoundingCircleTree controllerTree;
+        private AABBTree controllerTree;
         private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
         private MeanSquareError meanSquareError;
@@ -46,7 +46,7 @@ namespace OBB_CD_Comparison.src
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             font = Content.Load<SpriteFont>("font");
             //Sprite spriteParticle = new Sprite(textureParticle);
-            controllerTree = new BoundingCircleTree();
+            controllerTree = new AABBTree();
             /*
             controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1134,245)));
             controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1124,15)));
@@ -60,7 +60,7 @@ namespace OBB_CD_Comparison.src
             string[] ConfigVar = EntityFactory.ReadConfig();
             GRAVITY= float.Parse(ConfigVar[2]);
             List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
-            controllerTree.root = controllerTree.CreateTreeTopDown(null, returnedList);
+            controllerTree.root = controllerTree.CreateTreeTopDown_Median(null, returnedList);
             /*foreach(WorldEntity w in returnedList)
             {
                 controllerTree.Add(w);

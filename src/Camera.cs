@@ -19,10 +19,10 @@ namespace OBB_CD_Comparison.src
         public float Height { get { return Game1.ScreenHeight / Zoom; } }
         public bool AutoAdjustZoom { get; set; }
         public float GameZoom { get { if (Controller != null) return 2.0f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
-        public BoundingCircleTree Controller { get; set; }
+        public AABBTree Controller { get; set; }
         private float zoomSpeed;
 
-        public Camera([OptionalAttribute] BoundingCircleTree controller, float zoomSpeed = 0.001f)
+        public Camera([OptionalAttribute] AABBTree controller, float zoomSpeed = 0.001f)
         {
             if (controller != null)
             {

@@ -128,9 +128,9 @@ namespace OBB_CD_Comparison.src.BVH
             if (WorldEntity != null)
                 WorldEntity.Draw(sb);
             else{
-                float scale = 1+((int)Mass/7);
-                Vector2 origin = Vector2.Zero; //new Vector2(-Game1.font.Texture.Width/2, -Game1.font.Texture.Height/2);
-                sb.DrawString(Game1.font, ((int)Mass).ToString(), MassCenter, Color.Red, 0, origin, scale, SpriteEffects.None, 0);
+                //float scale = 3+((int)Mass/14);
+                //Vector2 origin = Vector2.Zero; //new Vector2(-Game1.font.Texture.Width/2, -Game1.font.Texture.Height/2);
+                //sb.DrawString(Game1.font, ((int)Mass).ToString(), MassCenter, Color.Red, 0, origin, scale, SpriteEffects.None, 0);
                 foreach (AABBNode c in children)
                     if (c != null)
                         c.Draw(sb);

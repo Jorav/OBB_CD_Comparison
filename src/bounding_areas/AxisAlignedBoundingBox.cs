@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace OBB_CD_Comparison.src.bounding_areas
@@ -53,7 +54,35 @@ namespace OBB_CD_Comparison.src.bounding_areas
             float xMax = Math.Max(UR.X, AABBOther.UR.X);
             float yMin = Math.Min(UL.Y, AABBOther.UL.Y);
             float yMax = Math.Max(DL.Y, AABBOther.DL.Y);
-            return new AxisAlignedBoundingBox(new Vector2(xMin, yMin), (int)Math.Round(xMax - xMin), (int)Math.Round(yMax - yMin));
+            return BoundingAreaFactory.CreateAABB(new Vector2(xMin, yMin), (int)Math.Round(xMax - xMin), (int)Math.Round(yMax - yMin));
+        }
+
+        public static AxisAlignedBoundingBox CombinedAABB(WorldEntity[] entities){
+            OrientedBoundingBox[] OBBs = new OrientedBoundingBox[entities.Length]; //TODO: SORT LIST ON AXIS
+            for (int i = 0; i < entities.Length; i++)
+                OBBs[i] = entities[i].OBB;
+            return CombinedAABB(OBBs);
+        }
+
+        public static AxisAlignedBoundingBox CombinedAABB(OrientedBoundingBox[] OBBs)
+        {
+            float minX = float.MaxValue;
+            float minY = float.MaxValue;
+            float maxX = float.MinValue;
+            float maxY = float.MinValue;
+            foreach(OrientedBoundingBox OBB in OBBs){
+                (float, float) maxXY = OBB.maxXY();
+                (float, float) minXY = OBB.minXY();
+                if (maxXY.Item1 > maxX)
+                    maxX = maxXY.Item1;
+                else if (minXY.Item1 < minX)
+                    minX = minXY.Item1;
+                if (maxXY.Item2 > maxY)
+                    maxY = maxXY.Item2;
+                else if (minXY.Item2 < minY)
+                    minY = minXY.Item2;
+            }
+            return BoundingAreaFactory.CreateAABB(new Vector2(minX, minY), (int)Math.Round(maxX - minX), (int)Math.Round(maxY - minY));
         }
 
         public bool CollidesWith(AxisAlignedBoundingBox AABB)

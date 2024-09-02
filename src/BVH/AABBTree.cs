@@ -1,6 +1,7 @@
 using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OBB_CD_Comparison.src.bounding_areas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +63,7 @@ namespace OBB_CD_Comparison.src.BVH
         }
 
         //for root: parent = null, newEntities is worldEntities
-        public AABBNode CreateTreeTopDown(AABBNode parent, List<WorldEntity> newEntities)
+        public AABBNode CreateTreeTopDown_Median(AABBNode parent, List<WorldEntity> newEntities)
         {
             //step 0: HANDLE EDGE-CASES
             if (parent == null)
@@ -103,11 +104,67 @@ namespace OBB_CD_Comparison.src.BVH
             else
                 newEntities.Sort((we1, we2) => we1.Position.Y.CompareTo(we2.Position.Y));
             AABBNode node = AllocateNode();
-            node.Add(CreateTreeTopDown(node, newEntities.GetRange(0, newEntities.Count / 2)));
-            node.Add(CreateTreeTopDown(node, newEntities.GetRange(newEntities.Count / 2, newEntities.Count / 2 + newEntities.Count % 2)));
+            node.Add(CreateTreeTopDown_Median(node, newEntities.GetRange(0, newEntities.Count / 2)));
+            node.Add(CreateTreeTopDown_Median(node, newEntities.GetRange(newEntities.Count / 2, newEntities.Count / 2 + newEntities.Count % 2)));
             node.RefitBoundingBox();
             return node;
         }
+        // newEntities order will be affected 
+        public AABBNode CreateTreeTopDown_SAH(AABBNode parent, List<WorldEntity> newEntities)
+        {
+            //step 0: HANDLE EDGE-CASES
+            if (parent == null)
+                UnravelTree();
+
+            if (newEntities.Count == 0)
+                return null;
+
+            if (newEntities.Count == 1)
+            {
+                return AllocateLeafNode(newEntities[0]);
+            }
+            //TODO: if node==root, remove current tree if it exists and add worldEntities to newEntities
+            //step 0: SETUP
+            float minCost = float.MaxValue;
+            int minCostSplitIndex = 0;
+            int minCostAxis = 0;
+            //step 1: DECIDE WHAT SPLIT TO USE
+            //ADD: sort along x-axis
+            for (int axis = 0; axis < 2; axis++)//x=0, y=1
+            {
+                if(axis == 0)
+                    newEntities.Sort((a, b) => a.Position.X.CompareTo(b.Position.X));
+                else
+                    newEntities.Sort((a, b) => a.Position.Y.CompareTo(b.Position.Y));
+                for (int i = 0; i < newEntities.Count - 1; i++)
+                {
+                    WorldEntity[] entities = newEntities.ToArray();
+                    AxisAlignedBoundingBox AABB1 = AxisAlignedBoundingBox.CombinedAABB(entities[0..i]);
+                    float cost1 = AABB1.Area;
+                    AxisAlignedBoundingBox AABB2 = AxisAlignedBoundingBox.CombinedAABB(entities[(i + 1)..(entities.Length - 1)]);
+                    float cost2 = AABB2.Area;
+                    float total = cost1 + cost2;
+                    if (total < minCost)
+                    {
+                        minCostSplitIndex = i;
+                        minCost = total;
+                        minCostAxis = axis;
+                    }
+                    BoundingAreaFactory.AABBs.Append(AABB1);
+                    BoundingAreaFactory.AABBs.Append(AABB2);
+                }
+            }
+
+            //step 2: SPLIT ON CHOSEN AXIS
+            if (minCostAxis == 0)
+                newEntities.Sort((we1, we2) => we1.Position.X.CompareTo(we2.Position.X));
+            AABBNode node = AllocateNode();
+            node.Add(CreateTreeTopDown_Median(node, newEntities.GetRange(0, minCostSplitIndex+1)));
+            node.Add(CreateTreeTopDown_Median(node, newEntities.GetRange(minCostSplitIndex+1, newEntities.Count-minCostSplitIndex-1)));
+            node.RefitBoundingBox();
+            return node;
+        }
+
         private AABBNode AllocateLeafNode(WorldEntity we)
         {
             AABBNode leafNode = AllocateNode();
@@ -172,8 +229,8 @@ namespace OBB_CD_Comparison.src.BVH
         {
             root.Update(gameTime);
             //RebuildTree();
-            root = CreateTreeTopDown(null, worldEntities.ToList());
-            root.ApplyInternalGravityNLOGN();
+            root = CreateTreeTopDown_SAH(null, worldEntities.ToList());
+            ApplyInternalGravityN();
             //ApplyInternalGravityN();
             //ApplyInternalGravityN2();
             root.GetInternalCollissions(CollissionPairs);

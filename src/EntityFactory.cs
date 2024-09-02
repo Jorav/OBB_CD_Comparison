@@ -38,15 +38,19 @@ namespace OBB_CD_Comparison.src
 
             Random rnd = new Random(flSeed);
 
-            float rndrang1;
-            float rndrang2;
+            float rRadius;
+            float rAngle;
 
             for (int j = 0; j < flNbrobj; j++)
             {
-                rndrang1 = rnd.Next(-2000, 2000);
-                rndrang2 = rnd.Next(-2000, 2000);
+                //rRadius = (float)(rnd.NextDouble()*(500+100*flNbrobj/Game1.GRAVITY));//+Math.Pow(flNbrobj,2)/5/Game1.GRAVITY/Game1.GRAVITY));
+                rRadius = (float)(rnd.NextDouble()*12*flNbrobj);
+                rAngle = (float)(rnd.NextDouble()*2*Math.PI);
+                //rndrang1 = rnd.Next(-1000-7*flNbrobj, 1000+7*flNbrobj);
+                //rndrang2 = rnd.Next(-1000-7*flNbrobj, 1000+7*flNbrobj);
                 //controllerlist.Add((Entitycontroller.AddEntity(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f)));
-                EntityFacList.Add(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f));
+                //EntityFacList.Add(new WorldEntity(textureParticle, new Vector2(rndrang1, rndrang2), 100f));
+                EntityFacList.Add(new WorldEntity(textureParticle, new Vector2((float)Math.Sin(rAngle), (float)Math.Cos(rAngle))*rRadius, 100f));
             }
             return EntityFacList;
         }

@@ -105,6 +105,15 @@ namespace OBB_CD_Comparison.src.bounding_areas
             UR = Position + Vector2.Transform(-Origin + width, rotationMatrix);
         }
 
+        //returns a tuple with the maximum X positions and maximum y position of the whole object (these two values does not necessarily belong to the same point)
+        public (float, float) maxXY(){
+            return ((float)Math.Max(Math.Max(UL.X, UR.X), Math.Max(DL.X, DR.X)),(float)Math.Max(Math.Max(UL.Y, UR.Y), Math.Max(DL.Y, DR.Y)));
+        }
+        //returns a tuple with the minimum X positions and minimum y position of the whole object (these two values does not necessarily belong to the same point)
+        public (float, float) minXY(){
+            return ((float)Math.Min(Math.Min(UL.X, UR.X), Math.Min(DL.X, DR.X)),(float)Math.Min(Math.Min(UL.Y, UR.Y), Math.Min(DL.Y, DR.Y)));
+        }
+
         public bool Contains(Vector2 position)
         {
             Vector2 AM = position - UL;
