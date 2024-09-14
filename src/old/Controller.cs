@@ -12,6 +12,7 @@ namespace OBB_CD_Comparison.src.old
         protected List<WorldEntity> entities;
         public List<WorldEntity> Entities { get { return entities; } set { SetEntities(value); } }
         protected float collissionOffset = 100; //TODO make this depend on velocity + other things?
+        public List<(WorldEntity, WorldEntity)> collissionPairs = new();
         public float Radius { get { return radius; } protected set { radius = value; } }
         protected float radius;
         public virtual Vector2 Position
@@ -91,12 +92,22 @@ namespace OBB_CD_Comparison.src.old
             UpdateEntities(gameTime);
             UpdatePosition();
             UpdateRadius();
-            ApplyInternalGravity();
+            ApplyInternalGravityN();
             //generateAxes();
             InternalCollission();
         }
 
-        protected void InternalCollission()
+        public virtual void UpdateDeterministic()
+        {
+            UpdateEntitiesDeterministic();
+            UpdatePosition();
+            UpdateRadius();
+            //generateAxes();
+            InternalCollission();
+            ApplyInternalGravityN();
+        }
+
+        protected void InternalCollission() //fix this so that worldentities its not n2, but rather you test against the ones which havnt already have been tested (and update collission resolver)
         {
             foreach (WorldEntity c1 in Entities)
             {
@@ -105,8 +116,7 @@ namespace OBB_CD_Comparison.src.old
                     c1.GenerateAxes();
                     c2.GenerateAxes();
                     if (c1 != c2 && c1.CollidesWith(c2)){
-                        c1.Collide(c2);
-                        c2.Collide(c1);
+                        collissionPairs.Add((c1, c2));
                     }
                         
                 }
@@ -127,6 +137,32 @@ namespace OBB_CD_Comparison.src.old
                         
                 }
             }
+        }
+        private void ResolveInternalCollissions()
+        {
+            HashSet<WorldEntity> entities = new();
+            foreach ((WorldEntity, WorldEntity) pair in collissionPairs)
+            {
+                entities.Add(pair.Item1);
+                entities.Add(pair.Item2);
+            }/*
+            foreach (WorldEntity we in entities)
+                we.GenerateAxes();*/
+            foreach ((WorldEntity, WorldEntity) pair in collissionPairs)
+            {
+                //if (pair.Item1.CollidesWith(pair.Item2))
+                {
+                    pair.Item1.Collide(pair.Item2);
+                    //pair.Item2.Collide(pair.Item1);
+                }
+            }
+            collissionPairs.Clear();
+        }
+
+        private void UpdateEntitiesDeterministic()
+        {
+            foreach (WorldEntity e in Entities)
+                e.UpdateDeterministic();
         }
 
         private void UpdateEntities(GameTime gameTime)
@@ -170,7 +206,7 @@ namespace OBB_CD_Comparison.src.old
                 return distance / nr / mass;
             return 1;
         }
-        protected void ApplyInternalGravity()
+        protected void ApplyInternalGravityN()
         {
             Vector2 distanceFromController;
             foreach (WorldEntity entity in Entities)

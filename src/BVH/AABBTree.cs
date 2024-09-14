@@ -188,7 +188,9 @@ namespace OBB_CD_Comparison.src.BVH
         public AABBNode FindBestSibling(AABBNode leafNew)
         {
             AABBNode bestSibling = root;
-            float bestCost = root.AABB.CombinedAABB(leafNew.AABB).Area;
+            AxisAlignedBoundingBox combinedBest = root.AABB.CombinedAABB(leafNew.AABB);
+            float bestCost = combinedBest.Area;
+            BoundingAreaFactory.AABBs.Append(combinedBest);
             PriorityQueue<AABBNode, float> queue = new();
             queue.Enqueue(root, 0);
 
@@ -201,7 +203,9 @@ namespace OBB_CD_Comparison.src.BVH
 
                 if (inheritedCost >= bestCost)
                     return bestSibling;
-                float combinedArea = currentNode.AABB.CombinedAABB(leafNew.AABB).Area;
+                AxisAlignedBoundingBox combined = currentNode.AABB.CombinedAABB(leafNew.AABB);
+                float combinedArea = combined.Area;
+                BoundingAreaFactory.AABBs.Append(combined);
                 float currentCost = combinedArea + inheritedCost;
                 if (currentCost < bestCost)
                 {
@@ -304,6 +308,22 @@ namespace OBB_CD_Comparison.src.BVH
                 }
                 root = null;
             }
+        }
+
+        public void UpdateDeterministic(PerformanceMeasurer measurer)
+        {
+            root.UpdateDeterministic();
+            //RebuildTree();
+            measurer.Tick(); //turn to state 0: build
+            root = CreateTreeTopDown_SAH(null, worldEntities.ToList());
+            measurer.Tick(); //turn to state 1: CD
+            root.GetInternalCollissions(CollissionPairs);
+            measurer.Tick(); //turn to state 2: CH
+            ResolveInternalCollissions();
+            measurer.Tick(); //turn to state 3: other
+            ApplyInternalGravityN();
+            //ApplyInternalGravityN();
+            //ApplyInternalGravityN2();
         }
     }
 

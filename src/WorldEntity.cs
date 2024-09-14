@@ -68,11 +68,6 @@ namespace OBB_CD_Comparison.src
         {
             sprite.Draw(sb);
         }
-
-        public override void Update(GameTime gameTime) //OBS Ska vara en funktion i thruster
-        {
-            base.Update(gameTime);
-        }
         public void Collide(WorldEntity e)
         {
             //collission repulsion

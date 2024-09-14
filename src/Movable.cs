@@ -70,5 +70,13 @@ namespace OBB_CD_Comparison.src
             else
                 Rotation = (float)Math.Atan(position.Y / position.X) - MathHelper.ToRadians(180);
         }
+
+        public void UpdateDeterministic()
+        {
+            Vector2 FrictionForce = (Velocity * Mass + TotalExteriorForce) * Friction * (float)Game1.timeStep * 60;
+            Velocity = Velocity + (TotalExteriorForce - FrictionForce) / Mass * (float)Game1.timeStep*60;
+            Position += Velocity * (float)Game1.timeStep * 60;
+            TotalExteriorForce = Vector2.Zero;
+        }
     }
 }

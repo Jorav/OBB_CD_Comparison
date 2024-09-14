@@ -227,6 +227,16 @@ namespace OBB_CD_Comparison.src.BVH
                     if (node != null)
                         node.AccelerateTo(position, force);
         }
+
+        public void UpdateDeterministic()
+        {
+            if (WorldEntity != null)
+                WorldEntity.UpdateDeterministic();
+            else
+                foreach (AABBNode child in children)
+                    if (child != null)
+                        child.UpdateDeterministic();
+        }
         #endregion
     }
 }

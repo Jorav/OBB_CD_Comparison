@@ -1,6 +1,7 @@
 using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OBB_CD_Comparison.src.bounding_areas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,7 +132,9 @@ namespace OBB_CD_Comparison.src.BVH
         public BoundingCircleNode FindBestSibling(BoundingCircleNode leafNew)
         {
             BoundingCircleNode bestSibling = root;
-            float bestCost = root.BoundingCircle.CombinedBoundingCircle(leafNew.BoundingCircle).Area;
+            BoundingCircle combinedBest = root.BoundingCircle.CombinedBoundingCircle(leafNew.BoundingCircle);
+            float bestCost = combinedBest.Area;
+            BoundingAreaFactory.circles.Append(combinedBest);
             PriorityQueue<BoundingCircleNode, float> queue = new();
             queue.Enqueue(root, 0);
 
@@ -144,7 +147,9 @@ namespace OBB_CD_Comparison.src.BVH
 
                 if (inheritedCost >= bestCost)
                     return bestSibling;
-                float combinedArea = currentNode.BoundingCircle.CombinedBoundingCircle(leafNew.BoundingCircle).Area;
+                BoundingCircle combined = currentNode.BoundingCircle.CombinedBoundingCircle(leafNew.BoundingCircle);
+                float combinedArea = combined.Area;
+                BoundingAreaFactory.circles.Append(combined);
                 float currentCost = combinedArea + inheritedCost;
                 if (currentCost < bestCost)
                 {
@@ -173,8 +178,8 @@ namespace OBB_CD_Comparison.src.BVH
             root.Update(gameTime);
             //RebuildTree();
             root = CreateTreeTopDown(null, worldEntities.ToList());
-            root.ApplyInternalGravityNLOGN();
-            //ApplyInternalGravityN();
+            //root.ApplyInternalGravityNLOGN();
+            ApplyInternalGravityN();
             //ApplyInternalGravityN2();
             root.GetInternalCollissions(CollissionPairs);
             ResolveInternalCollissions();

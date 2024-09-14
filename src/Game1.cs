@@ -15,11 +15,12 @@ namespace OBB_CD_Comparison.src
         private AABBTree controllerTree;
         private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
-        private MeanSquareError meanSquareError;
+        //private MeanSquareError meanSquareError;
         public static int ScreenWidth;
         public static int ScreenHeight;
         public static float GRAVITY = 10;
         public static SpriteFont font;
+        public static float timeStep = (1f/60f); 
 
         public Game1()
         {
@@ -67,19 +68,36 @@ namespace OBB_CD_Comparison.src
             }*/
             camera = new Camera(controllerTree) { AutoAdjustZoom = true };
             performanceMeasurer = new PerformanceMeasurer();
-            meanSquareError = new MeanSquareError(returnedList.ToArray());
-            meanSquareError.LoadPreviousPositions();
+            //meanSquareError = new MeanSquareError(returnedList.ToArray());
+            //meanSquareError.LoadPreviousPositions();
         }
 
         protected override void Update(GameTime gameTime)
         {
+            //UpdateRunning(gameTime);
+            UpdateDeterministic(gameTime);
+        }
+
+        //for running
+        protected void UpdateRunning(GameTime gameTime){
             // Add your update logic here
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             controllerTree.Update(gameTime);
             camera.Update();
             performanceMeasurer.Update(gameTime);
-            meanSquareError.Update(gameTime);
+            //meanSquareError.Update(gameTime);
+            base.Update(gameTime);
+        }
+
+        //for testing
+        protected void UpdateDeterministic(GameTime gameTime){
+            // Add your update logic here
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+            controllerTree.UpdateDeterministic(performanceMeasurer);
+            camera.Update();
+            //meanSquareError.UpdateDeterministic(timeStep);
             base.Update(gameTime);
         }
 
@@ -97,7 +115,7 @@ namespace OBB_CD_Comparison.src
         protected override void OnExiting(object sender, EventArgs args)
         {
             performanceMeasurer.Exit();
-            meanSquareError.Exit();
+            //meanSquareError.Exit();
             base.OnExiting(sender, args);
         }
     }
