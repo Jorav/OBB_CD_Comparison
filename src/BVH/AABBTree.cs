@@ -159,8 +159,8 @@ namespace OBB_CD_Comparison.src.BVH
             if (minCostAxis == 0)
                 newEntities.Sort((we1, we2) => we1.Position.X.CompareTo(we2.Position.X));
             AABBNode node = AllocateNode();
-            node.Add(CreateTreeTopDown_Median(node, newEntities.GetRange(0, minCostSplitIndex+1)));
-            node.Add(CreateTreeTopDown_Median(node, newEntities.GetRange(minCostSplitIndex+1, newEntities.Count-minCostSplitIndex-1)));
+            node.Add(CreateTreeTopDown_SAH(node, newEntities.GetRange(0, minCostSplitIndex+1)));
+            node.Add(CreateTreeTopDown_SAH(node, newEntities.GetRange(minCostSplitIndex+1, newEntities.Count-minCostSplitIndex-1)));
             node.RefitBoundingBox();
             return node;
         }
