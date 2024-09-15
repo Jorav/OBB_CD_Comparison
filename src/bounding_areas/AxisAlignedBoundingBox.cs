@@ -37,8 +37,16 @@ namespace OBB_CD_Comparison.src.bounding_areas
         {
             SetBox(upperLeftCorner,width,height);
         }
+        public AxisAlignedBoundingBox(OrientedBoundingBox OBB)
+        {
+            (float, float) minXY = OBB.minXY();
+            (float, float) maxXY = OBB.maxXY();
+            float width = maxXY.Item1-minXY.Item1;
+            float height = maxXY.Item2-minXY.Item2;
+            SetBox(new Vector2(minXY.Item1, minXY.Item2),width,height);
+        }
 
-        public void SetBox(Vector2 upperLeftCorner, int width, int height)
+        public void SetBox(Vector2 upperLeftCorner, float width, float height)
         {
             UL = new Vector2(upperLeftCorner.X, upperLeftCorner.Y);
             DL = new Vector2(upperLeftCorner.X, upperLeftCorner.Y + height);

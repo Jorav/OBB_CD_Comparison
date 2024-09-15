@@ -39,7 +39,7 @@ namespace OBB_CD_Comparison.src.BVH
             set
             {
                 worldEntity = value;
-                AABB = new AxisAlignedBoundingBox(worldEntity.Position-new Vector2(worldEntity.OBB.Width/2, worldEntity.OBB.Height/2), (int)worldEntity.OBB.Width, (int)WorldEntity.OBB.Height);
+                AABB = new AxisAlignedBoundingBox(worldEntity.OBB);
                 position = worldEntity.Position;
                 radius = WorldEntity.Radius;
                 Count = 1;
