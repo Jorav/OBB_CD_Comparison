@@ -219,7 +219,7 @@ namespace OBB_CD_Comparison.src.BVH
         {
             root.Update(gameTime);
             //RebuildTree();
-            root = CreateTreeTopDown_SAH(null, worldEntities.ToList());
+            root = CreateTreeTopDown_Median(null, worldEntities.ToList());
             ApplyInternalGravityN();
             //ApplyInternalGravityN();
             //ApplyInternalGravityN2();
