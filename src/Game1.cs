@@ -13,6 +13,7 @@ namespace OBB_CD_Comparison.src
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private AABBTree controllerTree;
+        //private Controller controller;
         private Camera camera;
         private PerformanceMeasurer performanceMeasurer;
         //private MeanSquareError meanSquareError;
@@ -64,6 +65,7 @@ namespace OBB_CD_Comparison.src
             GRAVITY= float.Parse(ConfigVar[2]);
             List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
             controllerTree.root = controllerTree.CreateTreeTopDown_Median(null, returnedList);
+            //controller = new Controller(returnedList);
             /*foreach(WorldEntity w in returnedList)
             {
                 controllerTree.Add(w);
@@ -85,7 +87,8 @@ namespace OBB_CD_Comparison.src
             // Add your update logic here
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            controllerTree.Update(gameTime);
+            //controllerTree.Update(gameTime);
+            //controller.Update(gameTime);
             camera.Update();
             performanceMeasurer.Update(gameTime);
             //meanSquareError.Update(gameTime);
@@ -97,7 +100,9 @@ namespace OBB_CD_Comparison.src
             // Add your update logic here
             //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             //    Exit();
+
             controllerTree.UpdateDeterministic(performanceMeasurer);
+            //controller.UpdateDeterministic();
             camera.Update();
             //meanSquareError.UpdateDeterministic(timeStep);
             base.Update(gameTime);
@@ -111,7 +116,8 @@ namespace OBB_CD_Comparison.src
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin(transformMatrix: camera.Transform);
            // _spriteBatch.Begin();
-                controllerTree.Draw(_spriteBatch);
+            controllerTree.Draw(_spriteBatch);
+            //controller.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
         }
