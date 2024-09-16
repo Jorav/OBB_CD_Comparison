@@ -96,10 +96,10 @@ namespace OBB_CD_Comparison.src.BVH
                     minY = we.Position.Y;
 
             }
-            bool splitOnX = (maxX - minX) > (maxY - minY);
+            int axis = AxisAlignedBoundingBox.MajorAxis(AxisAlignedBoundingBox.SurroundingAABB(newEntities.ToArray()));
 
             //step 2: SPLIT ON CHOSEN AXIS
-            if (splitOnX)
+            if (axis == 0)
                 newEntities.Sort((we1, we2) => we1.Position.X.CompareTo(we2.Position.X));
             else
                 newEntities.Sort((we1, we2) => we1.Position.Y.CompareTo(we2.Position.Y));
@@ -139,9 +139,9 @@ namespace OBB_CD_Comparison.src.BVH
                 for (int i = 0; i < newEntities.Count - 1; i++)
                 {
                     WorldEntity[] entities = newEntities.ToArray();
-                    AxisAlignedBoundingBox AABB1 = AxisAlignedBoundingBox.CombinedAABB(entities[0..i]);
+                    AxisAlignedBoundingBox AABB1 = AxisAlignedBoundingBox.SurroundingAABB(entities[0..i]);
                     float cost1 = AABB1.Area;
-                    AxisAlignedBoundingBox AABB2 = AxisAlignedBoundingBox.CombinedAABB(entities[(i + 1)..(entities.Length - 1)]);
+                    AxisAlignedBoundingBox AABB2 = AxisAlignedBoundingBox.SurroundingAABB(entities[(i + 1)..(entities.Length - 1)]);
                     float cost2 = AABB2.Area;
                     float total = cost1 + cost2;
                     if (total < minCost)
@@ -188,7 +188,7 @@ namespace OBB_CD_Comparison.src.BVH
         public AABBNode FindBestSibling(AABBNode leafNew)
         {
             AABBNode bestSibling = root;
-            AxisAlignedBoundingBox combinedBest = root.AABB.CombinedAABB(leafNew.AABB);
+            AxisAlignedBoundingBox combinedBest = AxisAlignedBoundingBox.SurroundingAABB(root.AABB,leafNew.AABB);
             float bestCost = combinedBest.Area;
             BoundingAreaFactory.AABBs.Append(combinedBest);
             PriorityQueue<AABBNode, float> queue = new();
@@ -203,7 +203,7 @@ namespace OBB_CD_Comparison.src.BVH
 
                 if (inheritedCost >= bestCost)
                     return bestSibling;
-                AxisAlignedBoundingBox combined = currentNode.AABB.CombinedAABB(leafNew.AABB);
+                AxisAlignedBoundingBox combined = AxisAlignedBoundingBox.SurroundingAABB(currentNode.AABB, leafNew.AABB);
                 float combinedArea = combined.Area;
                 BoundingAreaFactory.AABBs.Append(combined);
                 float currentCost = combinedArea + inheritedCost;
@@ -315,7 +315,7 @@ namespace OBB_CD_Comparison.src.BVH
             root.UpdateDeterministic();
             //RebuildTree();
             measurer.Tick(); //turn to state 0: build
-            root = CreateTreeTopDown_SAH(null, worldEntities.ToList());
+            root = CreateTreeTopDown_Median(null, worldEntities.ToList());
             measurer.Tick(); //turn to state 1: CD
             root.GetInternalCollissions(CollissionPairs);
             measurer.Tick(); //turn to state 2: CH

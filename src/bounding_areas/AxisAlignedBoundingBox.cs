@@ -13,7 +13,8 @@ namespace OBB_CD_Comparison.src.bounding_areas
         public float Area { get { return Width * Height; } }
         public float Width { get { return (int)(Math.Round((UR - UL).Length())); } }
         public float Height { get { return (int)(Math.Round((UR - DR).Length())); } }
-        //public Vector2 AbsolutePosition { get { return (UL + DR) / 2; } }
+        public (float, float) MaxXY {get; set;}
+        public (float, float) MinXY {get; set;}
         private Vector2 position;
         public Vector2 Position
         {
@@ -25,6 +26,8 @@ namespace OBB_CD_Comparison.src.bounding_areas
                 DR += change;
                 UR += change;
                 position = value;
+                MaxXY = ((float)Math.Max(Math.Max(UL.X, UR.X), Math.Max(DL.X, DR.X)),(float)Math.Max(Math.Max(UL.Y, UR.Y), Math.Max(DL.Y, DR.Y)));
+                MinXY = ((float)Math.Min(Math.Min(UL.X, UR.X), Math.Min(DL.X, DR.X)),(float)Math.Min(Math.Min(UL.Y, UR.Y), Math.Min(DL.Y, DR.Y)));
             }
             get
             {
@@ -35,15 +38,15 @@ namespace OBB_CD_Comparison.src.bounding_areas
 
         public AxisAlignedBoundingBox(Vector2 upperLeftCorner, int width, int height)
         {
-            SetBox(upperLeftCorner,width,height);
+            SetBox(upperLeftCorner, width, height);
         }
         public AxisAlignedBoundingBox(OrientedBoundingBox OBB)
         {
-            (float, float) minXY = OBB.minXY();
-            (float, float) maxXY = OBB.maxXY();
-            float width = maxXY.Item1-minXY.Item1;
-            float height = maxXY.Item2-minXY.Item2;
-            SetBox(new Vector2(minXY.Item1, minXY.Item2),width,height);
+            (float, float) minXY = OBB.MinXY;
+            (float, float) maxXY = OBB.MaxXY;
+            float width = maxXY.Item1 - minXY.Item1;
+            float height = maxXY.Item2 - minXY.Item2;
+            SetBox(new Vector2(minXY.Item1, minXY.Item2), width, height);
         }
 
         public void SetBox(Vector2 upperLeftCorner, float width, float height)
@@ -52,45 +55,57 @@ namespace OBB_CD_Comparison.src.bounding_areas
             DL = new Vector2(upperLeftCorner.X, upperLeftCorner.Y + height);
             DR = new Vector2(upperLeftCorner.X + width, upperLeftCorner.Y + height);
             UR = new Vector2(upperLeftCorner.X + width, upperLeftCorner.Y);
-            this.position = upperLeftCorner + new Vector2(width/2, height/2);
+            this.position = upperLeftCorner + new Vector2(width / 2, height / 2);
             Radius = (float)Math.Sqrt(Math.Pow(Width / 2, 2) + Math.Pow(Height / 2, 2));
+            MaxXY = ((float)Math.Max(Math.Max(UL.X, UR.X), Math.Max(DL.X, DR.X)),(float)Math.Max(Math.Max(UL.Y, UR.Y), Math.Max(DL.Y, DR.Y)));
+            MinXY = ((float)Math.Min(Math.Min(UL.X, UR.X), Math.Min(DL.X, DR.X)),(float)Math.Min(Math.Min(UL.Y, UR.Y), Math.Min(DL.Y, DR.Y)));
         }
 
-        public AxisAlignedBoundingBox CombinedAABB(AxisAlignedBoundingBox AABBOther)
+        public static AxisAlignedBoundingBox SurroundingAABB(AxisAlignedBoundingBox AABB1, AxisAlignedBoundingBox AABB2)
         {
-            float xMin = Math.Min(UL.X, AABBOther.UL.X);
-            float xMax = Math.Max(UR.X, AABBOther.UR.X);
-            float yMin = Math.Min(UL.Y, AABBOther.UL.Y);
-            float yMax = Math.Max(DL.Y, AABBOther.DL.Y);
+            float xMin = Math.Min(AABB1.UL.X, AABB2.UL.X);
+            float xMax = Math.Max(AABB1.UR.X, AABB2.UR.X);
+            float yMin = Math.Min(AABB1.UL.Y, AABB2.UL.Y);
+            float yMax = Math.Max(AABB1.DL.Y, AABB2.DL.Y);
             return BoundingAreaFactory.CreateAABB(new Vector2(xMin, yMin), (int)Math.Round(xMax - xMin), (int)Math.Round(yMax - yMin));
         }
 
-        public static AxisAlignedBoundingBox CombinedAABB(WorldEntity[] entities){
+        public static AxisAlignedBoundingBox SurroundingAABB(WorldEntity[] entities)
+        {
             OrientedBoundingBox[] OBBs = new OrientedBoundingBox[entities.Length]; //TODO: SORT LIST ON AXIS
             for (int i = 0; i < entities.Length; i++)
                 OBBs[i] = entities[i].OBB;
-            return CombinedAABB(OBBs);
+            return SurroundingAABB(OBBs);
         }
 
-        public static AxisAlignedBoundingBox CombinedAABB(OrientedBoundingBox[] OBBs)
+        public static AxisAlignedBoundingBox SurroundingAABB(OrientedBoundingBox[] OBBs)
         {
             float minX = float.MaxValue;
             float minY = float.MaxValue;
             float maxX = float.MinValue;
             float maxY = float.MinValue;
-            foreach(OrientedBoundingBox OBB in OBBs){
-                (float, float) maxXY = OBB.maxXY();
-                (float, float) minXY = OBB.minXY();
+            foreach (OrientedBoundingBox OBB in OBBs)
+            {
+                (float, float) maxXY = OBB.MaxXY;
+                (float, float) minXY = OBB.MinXY;
                 if (maxXY.Item1 > maxX)
                     maxX = maxXY.Item1;
-                else if (minXY.Item1 < minX)
+                if (minXY.Item1 < minX)
                     minX = minXY.Item1;
                 if (maxXY.Item2 > maxY)
                     maxY = maxXY.Item2;
-                else if (minXY.Item2 < minY)
+                if (minXY.Item2 < minY)
                     minY = minXY.Item2;
             }
             return BoundingAreaFactory.CreateAABB(new Vector2(minX, minY), (int)Math.Round(maxX - minX), (int)Math.Round(maxY - minY));
+        }
+
+        public static int MajorAxis(AxisAlignedBoundingBox AABB)
+        {
+            (float, float) diffXY = (AABB.MaxXY.Item1-AABB.MinXY.Item1, AABB.MaxXY.Item2 - AABB.MinXY.Item2);
+            if(diffXY.Item1>=diffXY.Item2)
+                return 0;
+            return 1;
         }
 
         public bool CollidesWith(AxisAlignedBoundingBox AABB)

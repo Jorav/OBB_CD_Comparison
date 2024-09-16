@@ -16,6 +16,8 @@ namespace OBB_CD_Comparison.src.bounding_areas
         public float Width { get { return (int)(Math.Round((UR - UL).Length())); } }
         public float Height { get { return (int)(Math.Round((UR - DR).Length())); } }
         public Vector2 AbsolutePosition { get { return (UL + DR) / 2; } }
+        public (float, float) MaxXY{get;set;}
+        public (float, float) MinXY{get;set;}
         private Vector2 origin;
         public Vector2 Origin
         {
@@ -40,6 +42,8 @@ namespace OBB_CD_Comparison.src.bounding_areas
                 DR += change;
                 UR += change;
                 position = value;
+                MaxXY = ((float)Math.Max(Math.Max(UL.X, UR.X), Math.Max(DL.X, DR.X)),(float)Math.Max(Math.Max(UL.Y, UR.Y), Math.Max(DL.Y, DR.Y)));
+                MinXY = ((float)Math.Min(Math.Min(UL.X, UR.X), Math.Min(DL.X, DR.X)),(float)Math.Min(Math.Min(UL.Y, UR.Y), Math.Min(DL.Y, DR.Y)));
             }
             get
             {
@@ -69,6 +73,8 @@ namespace OBB_CD_Comparison.src.bounding_areas
             origin = new Vector2(Width / 2, Height / 2);
             Rotation = rotation;
             Radius = (float)Math.Sqrt(Math.Pow(Width / 2, 2) + Math.Pow(Height / 2, 2));
+            MaxXY = ((float)Math.Max(Math.Max(UL.X, UR.X), Math.Max(DL.X, DR.X)),(float)Math.Max(Math.Max(UL.Y, UR.Y), Math.Max(DL.Y, DR.Y)));
+            MinXY = ((float)Math.Min(Math.Min(UL.X, UR.X), Math.Min(DL.X, DR.X)),(float)Math.Min(Math.Min(UL.Y, UR.Y), Math.Min(DL.Y, DR.Y)));
         }
         public bool CollidesWith(OrientedBoundingBox r)
         {
@@ -103,15 +109,6 @@ namespace OBB_CD_Comparison.src.bounding_areas
             DL = Position + Vector2.Transform(-Origin + height, rotationMatrix);
             DR = Position + Vector2.Transform(-Origin + height + width, rotationMatrix);
             UR = Position + Vector2.Transform(-Origin + width, rotationMatrix);
-        }
-
-        //returns a tuple with the maximum X positions and maximum y position of the whole object (these two values does not necessarily belong to the same point)
-        public (float, float) maxXY(){
-            return ((float)Math.Max(Math.Max(UL.X, UR.X), Math.Max(DL.X, DR.X)),(float)Math.Max(Math.Max(UL.Y, UR.Y), Math.Max(DL.Y, DR.Y)));
-        }
-        //returns a tuple with the minimum X positions and minimum y position of the whole object (these two values does not necessarily belong to the same point)
-        public (float, float) minXY(){
-            return ((float)Math.Min(Math.Min(UL.X, UR.X), Math.Min(DL.X, DR.X)),(float)Math.Min(Math.Min(UL.Y, UR.Y), Math.Min(DL.Y, DR.Y)));
         }
 
         public bool Contains(Vector2 position)

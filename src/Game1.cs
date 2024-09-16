@@ -19,6 +19,8 @@ namespace OBB_CD_Comparison.src
         public static int ScreenWidth;
         public static int ScreenHeight;
         public static float GRAVITY = 10;
+        public static int ITERATIONS_TO_FINISH = 60*10;
+        public int currentIterations = 0;
         public static SpriteFont font;
         public static float timeStep = (1f/60f); 
 
@@ -93,12 +95,14 @@ namespace OBB_CD_Comparison.src
         //for testing
         protected void UpdateDeterministic(GameTime gameTime){
             // Add your update logic here
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            //    Exit();
             controllerTree.UpdateDeterministic(performanceMeasurer);
             camera.Update();
             //meanSquareError.UpdateDeterministic(timeStep);
             base.Update(gameTime);
+            if(++currentIterations == ITERATIONS_TO_FINISH)
+                Exit();
         }
 
         protected override void Draw(GameTime gameTime)
