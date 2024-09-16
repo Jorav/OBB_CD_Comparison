@@ -80,23 +80,9 @@ namespace OBB_CD_Comparison.src.BVH
 
 
             //step 1: DECIDE WHAT AXIS TO SPLIT
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
-            foreach (WorldEntity we in newEntities)
-            {
-                if (we.Position.X > maxX)
-                    maxX = we.Position.X;
-                else if (we.Position.X < minX)
-                    minX = we.Position.X;
-                if (we.Position.Y > maxY)
-                    maxY = we.Position.Y;
-                else if (we.Position.Y < minY)
-                    minY = we.Position.Y;
-
-            }
-            int axis = AxisAlignedBoundingBox.MajorAxis(AxisAlignedBoundingBox.SurroundingAABB(newEntities.ToArray()));
+            AxisAlignedBoundingBox AABB = AxisAlignedBoundingBox.SurroundingAABB(newEntities.ToArray());
+            int axis = AxisAlignedBoundingBox.MajorAxis(AABB);
+            BoundingAreaFactory.AABBs.Append(AABB);
 
             //step 2: SPLIT ON CHOSEN AXIS
             if (axis == 0)
