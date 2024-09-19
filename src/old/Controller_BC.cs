@@ -7,7 +7,7 @@ using System.Text;
 
 namespace OBB_CD_Comparison.src.old
 {
-    public class Controller : IController
+    public class Controller_BC
     {
         protected List<WorldEntity> entities;
         public List<WorldEntity> Entities { get { return entities; } set { SetEntities(value); } }
@@ -38,16 +38,14 @@ namespace OBB_CD_Comparison.src.old
             }
         }
 
-        public int VERSION_USED { get; set; }
-
         protected Vector2 position;
 
-        public Controller(List<WorldEntity> controllables)
+        public Controller_BC(List<WorldEntity> controllables)
         {
             SetEntities(controllables);
         }
 
-        public Controller([OptionalAttribute] Vector2 position)
+        public Controller_BC([OptionalAttribute] Vector2 position)
         {
             if (position == null)
                 position = Vector2.Zero;
@@ -96,56 +94,51 @@ namespace OBB_CD_Comparison.src.old
             UpdateRadius();
             ApplyInternalGravityN();
             //generateAxes();
-            GetInternalCollissions();
+            InternalCollission();
         }
 
         public virtual void UpdateDeterministic()
         {
-
-            //GetInternalCollissions();
-            //ResolveInternalCollissions();
-            ApplyInternalGravityN();
             UpdateEntitiesDeterministic();
             UpdatePosition();
             UpdateRadius();
+            //generateAxes();
+            InternalCollission();
+            ApplyInternalGravityN();
         }
 
-        public void GetInternalCollissions() //fix this so that worldentities its not n2, but rather you test against the ones which havnt already have been tested (and update collission resolver)
+        protected void InternalCollission() //fix this so that worldentities its not n2, but rather you test against the ones which havnt already have been tested (and update collission resolver)
         {
-            if (VERSION_USED > 0)
-            {
-                foreach (WorldEntity we in Entities)
-                    we.GenerateAxes();
-            }
             foreach (WorldEntity c1 in Entities)
             {
                 foreach (WorldEntity c2 in Entities)
                 {
-                    if (VERSION_USED == 0)
-                    {
-                        c1.GenerateAxes();
-                        c2.GenerateAxes();
+                    c1.GenerateAxes();
+                    c2.GenerateAxes();
+                    if (c1 != c2 && c1.CollidesWith(c2)){
+                        collissionPairs.Add((c1, c2));
                     }
-                    if (VERSION_USED == 2)
-                    {
-                        if(c1!= c2 && c1.BoundingCircle.CollidesWith(c2.BoundingCircle)){
-                            if(c1.CollidesWith(c2)){
-                                collissionPairs.Add((c1, c2));
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        if (c1 != c2 && c1.CollidesWith(c2))
-                        {
-                            collissionPairs.Add((c1, c2));
-                        }
-                    }
+                        
                 }
             }
         }
-        public void ResolveInternalCollissions()
+        protected void InternalCollissionPreGeneration()
+        {
+            foreach(WorldEntity we in Entities)
+                we.GenerateAxes();
+            foreach (WorldEntity c1 in Entities)
+            {
+                foreach (WorldEntity c2 in Entities)
+                {
+                    if (c1 != c2 && c1.CollidesWith(c2)){
+                        c1.Collide(c2);
+                        c2.Collide(c1);
+                    }
+                        
+                }
+            }
+        }
+        private void ResolveInternalCollissions()
         {
             HashSet<WorldEntity> entities = new();
             foreach ((WorldEntity, WorldEntity) pair in collissionPairs)
@@ -220,7 +213,7 @@ namespace OBB_CD_Comparison.src.old
             {
                 distanceFromController = Position - entity.Position;
                 if (distanceFromController.Length() > entity.Radius)
-                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), Game1.GRAVITY * (Mass - entity.Mass) * entity.Mass / (float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
+                    entity.Accelerate(Vector2.Normalize(Position - entity.Position), Game1.GRAVITY*(Mass-entity.Mass)*entity.Mass/(float)Math.Pow((distanceFromController.Length()), 1)); //2d gravity r is raised to 1
                 //entity.Accelerate(Vector2.Normalize(Position - entity.Position), (float)Math.Pow(((distanceFromController.Length() - entity.Radius) / AverageDistance()) / 2 * entity.Mass, 2));
             }
         }
@@ -244,11 +237,6 @@ namespace OBB_CD_Comparison.src.old
         {
             foreach (WorldEntity e in Entities)
                 e.Draw(sb);
-        }
-
-        public void BuildTree()
-        {
-            //NOTHING SHOULD BE DONE HERE throw new NotImplementedException();
         }
     }
 }

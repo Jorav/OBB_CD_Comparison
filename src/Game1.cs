@@ -20,10 +20,10 @@ namespace OBB_CD_Comparison.src
         public static int ScreenWidth;
         public static int ScreenHeight;
         public static float GRAVITY = 10;
-        public static int ITERATIONS_TO_FINISH = 60*10;
-        public int currentIterations = 0;
         public static SpriteFont font;
-        public static float timeStep = (1f/60f); 
+        public static int FRAMES_PER_SECOND = 60;
+        public static float TIME_STEP = (1f/FRAMES_PER_SECOND);
+        public Tests tests;
 
         public Game1()
         {
@@ -49,29 +49,29 @@ namespace OBB_CD_Comparison.src
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Texture2D textureParticle = Content.Load<Texture2D>("RotatingHull");
             font = Content.Load<SpriteFont>("font");
-            //Sprite spriteParticle = new Sprite(textureParticle);
             controllerTree = new AABBTree();
-            /*
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1134,245)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1124,15)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(1124,120)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(0,0)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(3,300)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(500,5)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(110,0)));
-            controllerTree.Add(new WorldEntity(textureParticle, new Vector2(232,300)));*/   
 
-            string[] ConfigVar = EntityFactory.ReadConfig();
-            GRAVITY= float.Parse(ConfigVar[2]);
-            List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
-            controllerTree.root = controllerTree.CreateTreeTopDown_Median(null, returnedList);
+            //string[] ConfigVar = EntityFactory.ReadConfig();
+            //GRAVITY= float.Parse(ConfigVar[2]);
+            //List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
+            int gravity = 10;
+            int seed = 100;
+            camera = new Camera();
+            tests = new Tests(this, camera, seed);
+            int maxEntitiesNeeded = 0;
+            for(int i = 0; i< tests.nrOfEntities.Length; i++)
+                if(tests.nrOfEntities[i] > maxEntitiesNeeded)
+                    maxEntitiesNeeded = tests.nrOfEntities[i];
+            GRAVITY = gravity;
+            tests.LoadEntities(EntityFactory.EntFacImplementation(seed.ToString(), maxEntitiesNeeded.ToString(), textureParticle));
+            //controllerTree.root = controllerTree.CreateTreeTopDown_Median(null, returnedList);
             //controller = new Controller(returnedList);
             /*foreach(WorldEntity w in returnedList)
             {
                 controllerTree.Add(w);
             }*/
-            camera = new Camera(controllerTree) { AutoAdjustZoom = true };
-            performanceMeasurer = new PerformanceMeasurer();
+            //camera = new Camera(controllerTree) { AutoAdjustZoom = true };
+            //performanceMeasurer = new PerformanceMeasurer();
             //meanSquareError = new MeanSquareError(returnedList.ToArray());
             //meanSquareError.LoadPreviousPositions();
         }
@@ -79,7 +79,9 @@ namespace OBB_CD_Comparison.src
         protected override void Update(GameTime gameTime)
         {
             //UpdateRunning(gameTime);
-            UpdateDeterministic(gameTime);
+            //UpdateDeterministic(gameTime);
+            tests.Update(gameTime);
+            base.Update(gameTime);
         }
 
         //for running
@@ -89,8 +91,8 @@ namespace OBB_CD_Comparison.src
                 Exit();
             //controllerTree.Update(gameTime);
             //controller.Update(gameTime);
-            camera.Update();
-            performanceMeasurer.Update(gameTime);
+            //camera.Update();
+            //performanceMeasurer.Update(gameTime);
             //meanSquareError.Update(gameTime);
             base.Update(gameTime);
         }
@@ -101,13 +103,12 @@ namespace OBB_CD_Comparison.src
             //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             //    Exit();
 
-            controllerTree.UpdateDeterministic(performanceMeasurer);
+            //controllerTree.UpdateDeterministic(performanceMeasurer);
             //controller.UpdateDeterministic();
-            camera.Update();
+            //camera.Update();
             //meanSquareError.UpdateDeterministic(timeStep);
+            tests.Update(gameTime);
             base.Update(gameTime);
-            if(++currentIterations == ITERATIONS_TO_FINISH)
-                Exit();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -116,7 +117,8 @@ namespace OBB_CD_Comparison.src
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin(transformMatrix: camera.Transform);
            // _spriteBatch.Begin();
-            controllerTree.Draw(_spriteBatch);
+            tests.Draw(_spriteBatch);
+            //controllerTree.Draw(_spriteBatch);
             //controller.Draw(_spriteBatch);
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -124,7 +126,7 @@ namespace OBB_CD_Comparison.src
 
         protected override void OnExiting(object sender, EventArgs args)
         {
-            performanceMeasurer.Exit();
+            //performanceMeasurer.Exit();
             //meanSquareError.Exit();
             base.OnExiting(sender, args);
         }

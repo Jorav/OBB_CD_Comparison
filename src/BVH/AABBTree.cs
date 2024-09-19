@@ -10,7 +10,7 @@ using System.Text;
 
 namespace OBB_CD_Comparison.src.BVH
 {
-    public class AABBTree
+    public class AABBTree: IController
     {
         public Vector2 Position { get { return root.Position; } }
         public float Radius { get { return root.Radius; } }
@@ -18,6 +18,7 @@ namespace OBB_CD_Comparison.src.BVH
         private Stack<AABBNode> freeNodes = new();
         private HashSet<WorldEntity> worldEntities = new();
         public List<(WorldEntity, WorldEntity)> CollissionPairs = new();
+        public int VERSION_USED {get; set;} = 0; 
 
         public AABBTree()
         {
@@ -217,7 +218,6 @@ namespace OBB_CD_Comparison.src.BVH
         }
         public virtual void Update(GameTime gameTime)
         {
-            root.Update(gameTime);
             //RebuildTree();
             root = CreateTreeTopDown_Median(null, worldEntities.ToList());
             ApplyInternalGravityN();
@@ -225,6 +225,7 @@ namespace OBB_CD_Comparison.src.BVH
             //ApplyInternalGravityN2();
             root.GetInternalCollissions(CollissionPairs);
             ResolveInternalCollissions();
+            root.Update(gameTime);
         }
 
         private void ApplyInternalGravityN()
@@ -245,8 +246,20 @@ namespace OBB_CD_Comparison.src.BVH
                     if (we1 != we2)
                         we1.AccelerateTo(we2.Position, Game1.GRAVITY * we1.Mass * we2.Mass / (float)Math.Pow(((we1.Position - we2.Position).Length()), 1));
         }
+        public void BuildTree(){
+            switch(VERSION_USED){
+                case 0: root = CreateTreeTopDown_Median(null, worldEntities.ToList()); break;
+                case 1: root = CreateTreeTopDown_SAH(null, worldEntities.ToList()); break;
+                case 2: BuildTree_Insertion();break;
+                default: throw new Exception("tree build overflow");
+            }        
+        }
 
-        private void ResolveInternalCollissions()
+        public void GetInternalCollissions(){
+            root.GetInternalCollissions(CollissionPairs);
+        }
+
+        public void ResolveInternalCollissions()
         {
             HashSet<WorldEntity> entities = new();
             foreach ((WorldEntity, WorldEntity) pair in CollissionPairs)
@@ -267,7 +280,7 @@ namespace OBB_CD_Comparison.src.BVH
             CollissionPairs.Clear();
         }
 
-        private void RebuildTree()
+        private void BuildTree_Insertion()
         {
             UnravelTree();
             foreach (WorldEntity we in worldEntities)
@@ -296,20 +309,29 @@ namespace OBB_CD_Comparison.src.BVH
             }
         }
 
-        public void UpdateDeterministic(PerformanceMeasurer measurer)
+        public void UpdateDeterministic(/*PerformanceMeasurer measurer*/)
         {
+            ApplyInternalGravityN();
             root.UpdateDeterministic();
             //RebuildTree();
-            measurer.Tick(); //turn to state 0: build
-            root = CreateTreeTopDown_Median(null, worldEntities.ToList());
-            measurer.Tick(); //turn to state 1: CD
-            root.GetInternalCollissions(CollissionPairs);
-            measurer.Tick(); //turn to state 2: CH
-            ResolveInternalCollissions();
-            measurer.Tick(); //turn to state 3: other
-            ApplyInternalGravityN();
+            //measurer.Tick(); //turn to state 0: build
+            //BuildTree();
+            //measurer.Tick(); //turn to state 1: CD
+            //GetInternalCollissions();
+            //measurer.Tick(); //turn to state 2: CH
+            //ResolveInternalCollissions();
+            //measurer.Tick(); //turn to state 3: other
+            //ApplyInternalGravityN();
             //ApplyInternalGravityN();
             //ApplyInternalGravityN2();
+        }
+
+        public void SetEntities(List<WorldEntity> entities)
+        {
+            worldEntities.Clear();
+            foreach(WorldEntity we in entities)
+                worldEntities.Add(we);
+            BuildTree();
         }
     }
 

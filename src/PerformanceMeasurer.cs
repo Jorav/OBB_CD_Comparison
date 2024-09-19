@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace OBB_CD_Comparison.src
 {
@@ -52,21 +53,18 @@ namespace OBB_CD_Comparison.src
                 timer.Restart();
             }
         }
-
-        public void Exit()
-        {
-            // Set a variable to the Documents path.
+        public void SubmitTimes(String fileName){
             string docPath =
               Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            // Write the string array to a new file named "WriteLines.txt".
+            /*// Write the string array to a new file named "WriteLines.txt".
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "elapsedTimes.txt")))
             {
                 foreach (double time in elapsedTimes)
                     outputFile.WriteLine(time.ToString());
-            }
+            }*/
 
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "elapsedTimes_categorised.txt")))
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, fileName)))
             {
                 int nrLines = Math.Min(Math.Min(buildTimes.Count, CDTimes.Count), Math.Min(otherTimes.Count, CHTimes.Count));
                 for(int i = 0; i<nrLines; i++)
@@ -74,6 +72,18 @@ namespace OBB_CD_Comparison.src
                     outputFile.WriteLine(buildTimes[i].ToString() + ";" + CDTimes[i].ToString() + ";" + CHTimes[i].ToString() + ";" + otherTimes[i].ToString());
                 }
             }
+            timer.Reset();
+            state = -1;
+            buildTimes.Clear();
+            CDTimes.Clear();
+            CHTimes.Clear();
+            otherTimes.Clear();
+        }
+
+        public void Exit()
+        {
+            // Set a variable to the Documents path.
+            
         }
     }
 }

@@ -13,6 +13,7 @@ namespace OBB_CD_Comparison.src
         protected Sprite sprite = null;
         public bool IsVisible { get { return sprite.isVisible; } set { sprite.isVisible = value; } }
         public OrientedBoundingBox OBB;
+        public static bool UseBoundingCircle = true;
         public BoundingCircle BoundingCircle { get; set; }
         public override Vector2 Position
         {
@@ -22,7 +23,8 @@ namespace OBB_CD_Comparison.src
                 position = value;
                 sprite.Position = value;
                 OBB.Position = value;
-                BoundingCircle.Position = value;
+                if(UseBoundingCircle)
+                    BoundingCircle.Position = value;
             }
         }
         public override float Rotation
@@ -45,9 +47,11 @@ namespace OBB_CD_Comparison.src
             }
         }
         protected Vector2 origin;
+        /// <for testing>
+        /// </for testing>
         public float Width { get { return sprite.Width; } }
         public float Height { get { return sprite.Height; } }
-        public float Radius { get { return BoundingCircle.Radius; } }
+        public float Radius { get { if(UseBoundingCircle) return BoundingCircle.Radius; else return OBB.Radius;} }
         public bool IsCollidable { get; set; }
         public Vector2 MassCenter { get { return position; } }
         public static float REPULSIONDISTANCE = 100;
@@ -93,6 +97,12 @@ namespace OBB_CD_Comparison.src
         public bool CollidesWith(WorldEntity e)
         {
             return IsCollidable && e.IsCollidable && OBB.CollidesWith(e.OBB);
+        }
+
+        public void Reset(){
+            position = Vector2.Zero;
+            Velocity = Vector2.Zero;
+            TotalExteriorForce = Vector2.Zero;
         }
         #endregion
     }

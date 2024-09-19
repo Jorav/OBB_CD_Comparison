@@ -19,16 +19,13 @@ namespace OBB_CD_Comparison.src
         public float Height { get { return Game1.ScreenHeight / Zoom; } }
         public bool AutoAdjustZoom { get; set; }
         public float GameZoom { get { if (Controller != null) return 2.0f*Game1.ScreenHeight / (Game1.ScreenHeight + 1 * Controller.Radius); else return 1; } }
-        public AABBTree Controller { get; set; }
+        public IController Controller { get; set; }
         private float zoomSpeed;
 
         public Camera([OptionalAttribute] AABBTree controller, float zoomSpeed = 0.001f)
         {
             if (controller != null)
-            {
-                Position = controller.Position;
-                this.Controller = controller;
-            }
+                SetController(controller);
             else
                 Position = Vector2.Zero;
             PreviousPosition = Position;
@@ -36,6 +33,14 @@ namespace OBB_CD_Comparison.src
             Zoom = GameZoom;
             this.zoomSpeed = zoomSpeed;
             AutoAdjustZoom = true;
+            UpdateTransformMatrix();
+        }
+        public void SetController(IController controller){
+            this.Controller = controller;
+            Position = controller.Position;
+            PreviousPosition = Position;
+            this.Controller = controller;
+            Zoom = GameZoom;
             UpdateTransformMatrix();
         }
 
