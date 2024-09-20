@@ -51,19 +51,25 @@ namespace OBB_CD_Comparison.src
             font = Content.Load<SpriteFont>("font");
             controllerTree = new AABBTree();
 
-            //string[] ConfigVar = EntityFactory.ReadConfig();
-            //GRAVITY= float.Parse(ConfigVar[2]);
+            string[] ConfigVar = EntityFactory.ReadConfig();
+            int seed = int.Parse(ConfigVar[0]);
+            int nr = int.Parse(ConfigVar[1]);
+            float gravity = float.Parse(ConfigVar[2]);
+            int test_case = int.Parse(ConfigVar[3]);
+            
             //List<WorldEntity> returnedList = EntityFactory.EntFacImplementation(ConfigVar[0],ConfigVar[1],textureParticle);
-            int gravity = 10;
-            int seed = 100;
+            //int seed = 100;
             camera = new Camera();
+            Tests.nrOfEntities = new int[] { nr };
             tests = new Tests(this, camera, seed);
-            int maxEntitiesNeeded = 0;
+            
+            /*int maxEntitiesNeeded = 0;
             for(int i = 0; i< tests.nrOfEntities.Length; i++)
                 if(tests.nrOfEntities[i] > maxEntitiesNeeded)
-                    maxEntitiesNeeded = tests.nrOfEntities[i];
+                    maxEntitiesNeeded = tests.nrOfEntities[i];*/
             GRAVITY = gravity;
-            tests.LoadEntities(EntityFactory.EntFacImplementation(seed.ToString(), maxEntitiesNeeded.ToString(), textureParticle));
+            Tests.CURRENT_CONTROLLER_TEST = test_case;
+            tests.LoadEntities(EntityFactory.EntFacImplementation(seed.ToString(), nr.ToString(), textureParticle));
             //controllerTree.root = controllerTree.CreateTreeTopDown_Median(null, returnedList);
             //controller = new Controller(returnedList);
             /*foreach(WorldEntity w in returnedList)
@@ -112,7 +118,7 @@ namespace OBB_CD_Comparison.src
         }
 
         protected override void Draw(GameTime gameTime)
-        {
+        {/*
             // Add your drawing code here
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin(transformMatrix: camera.Transform);
@@ -121,7 +127,7 @@ namespace OBB_CD_Comparison.src
             //controllerTree.Draw(_spriteBatch);
             //controller.Draw(_spriteBatch);
             _spriteBatch.End();
-            base.Draw(gameTime);
+            base.Draw(gameTime);*/
         }
 
         protected override void OnExiting(object sender, EventArgs args)

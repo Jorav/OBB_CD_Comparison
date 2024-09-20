@@ -71,11 +71,30 @@ namespace OBB_CD_Comparison.src.bounding_areas
         }
 
         public static AxisAlignedBoundingBox SurroundingAABB(WorldEntity[] entities)
-        {
+        {/*
             OrientedBoundingBox[] OBBs = new OrientedBoundingBox[entities.Length]; //TODO: SORT LIST ON AXIS
             for (int i = 0; i < entities.Length; i++)
                 OBBs[i] = entities[i].OBB;
-            return SurroundingAABB(OBBs);
+            return SurroundingAABB(OBBs);*/
+            float minX = float.MaxValue;
+            float minY = float.MaxValue;
+            float maxX = float.MinValue;
+            float maxY = float.MinValue;
+            foreach (WorldEntity we in entities)
+            {
+                OrientedBoundingBox OBB = we.OBB;
+                (float, float) maxXY = OBB.MaxXY;
+                (float, float) minXY = OBB.MinXY;
+                if (maxXY.Item1 > maxX)
+                    maxX = maxXY.Item1;
+                if (minXY.Item1 < minX)
+                    minX = minXY.Item1;
+                if (maxXY.Item2 > maxY)
+                    maxY = maxXY.Item2;
+                if (minXY.Item2 < minY)
+                    minY = minXY.Item2;
+            }
+            return BoundingAreaFactory.CreateAABB(new Vector2(minX, minY), (int)Math.Round(maxX - minX), (int)Math.Round(maxY - minY));
         }
 
         public static AxisAlignedBoundingBox SurroundingAABB(OrientedBoundingBox[] OBBs)
@@ -115,5 +134,12 @@ namespace OBB_CD_Comparison.src.bounding_areas
                     UL.Y < AABB.UL.Y + AABB.Height &&
                     UL.Y + Height > AABB.UL.Y;
         }
+
+        /*public static AxisAlignedBoundingBox SurroundingAABB_sorted(WorldEntity[] worldEntities)
+        {
+            foreach(WorldEntity we in worldEntities){
+
+            }
+        }*/
     }
 }

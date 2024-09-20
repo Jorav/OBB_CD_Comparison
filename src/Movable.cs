@@ -8,7 +8,6 @@ namespace OBB_CD_Comparison.src
     public abstract class Movable
     {
         public virtual float Mass { get; set; }
-        public virtual float Thrust { get; set; }
         public virtual Vector2 Position { get; set; }
         protected Vector2 position;
         public virtual float Rotation { get; set; }
@@ -23,7 +22,6 @@ namespace OBB_CD_Comparison.src
             this.position = position;
             this.rotation = rotation;
             Mass = mass;
-            Thrust = thrust;
             Friction = friction;
             Velocity = Vector2.Zero;
         }

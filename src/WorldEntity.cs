@@ -11,7 +11,6 @@ namespace OBB_CD_Comparison.src
     {
         #region Properties
         protected Sprite sprite = null;
-        public bool IsVisible { get { return sprite.isVisible; } set { sprite.isVisible = value; } }
         public OrientedBoundingBox OBB;
         public static bool UseBoundingCircle = true;
         public BoundingCircle BoundingCircle { get; set; }
@@ -52,19 +51,16 @@ namespace OBB_CD_Comparison.src
         public float Width { get { return sprite.Width; } }
         public float Height { get { return sprite.Height; } }
         public float Radius { get { if(UseBoundingCircle) return BoundingCircle.Radius; else return OBB.Radius;} }
-        public bool IsCollidable { get; set; }
         public Vector2 MassCenter { get { return position; } }
-        public static float REPULSIONDISTANCE = 100;
         #endregion
         public WorldEntity(Texture2D texture, Vector2 position, float rotation = 0, float mass = 1, float thrust = 1, float friction = 0.1f, bool isVisible = true, bool isCollidable = true) : base(position, rotation, mass, thrust, friction)
         {
             this.sprite = new Sprite(texture);
             OBB = new OrientedBoundingBox(position, rotation, sprite.Width, sprite.Height);
-            BoundingCircle = new BoundingCircle(position, OBB.Radius);
+            if(UseBoundingCircle)
+                BoundingCircle = new BoundingCircle(position, OBB.Radius);
             Position = position;
             Rotation = rotation;
-            IsVisible = isVisible;
-            IsCollidable = isCollidable;
             Origin = new Vector2(Width / 2, Height / 2);
         }
         #region Methods
@@ -96,7 +92,14 @@ namespace OBB_CD_Comparison.src
 
         public bool CollidesWith(WorldEntity e)
         {
-            return IsCollidable && e.IsCollidable && OBB.CollidesWith(e.OBB);
+            if(WorldEntity.UseBoundingCircle){
+                if(BoundingCircle.CollidesWith(e.BoundingCircle)){
+                    return OBB.CollidesWith(e.OBB);
+                }
+                else
+                    return false;
+            }
+            return OBB.CollidesWith(e.OBB);
         }
 
         public void Reset(){

@@ -126,21 +126,9 @@ namespace OBB_CD_Comparison.src.old
                         c1.GenerateAxes();
                         c2.GenerateAxes();
                     }
-                    if (VERSION_USED == 2)
+                    if (c1 != c2 && c1.CollidesWith(c2))
                     {
-                        if(c1!= c2 && c1.BoundingCircle.CollidesWith(c2.BoundingCircle)){
-                            if(c1.CollidesWith(c2)){
-                                collissionPairs.Add((c1, c2));
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        if (c1 != c2 && c1.CollidesWith(c2))
-                        {
-                            collissionPairs.Add((c1, c2));
-                        }
+                        collissionPairs.Add((c1, c2));
                     }
                 }
             }

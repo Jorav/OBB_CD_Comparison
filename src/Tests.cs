@@ -14,7 +14,7 @@ namespace OBB_CD_Comparison.src
     Camera camera;
     PerformanceMeasurer measurer;
     IController controller;
-    public int[] nrOfEntities = { 10, 100, 1000};
+    public static int[] nrOfEntities = { 10, 100, 1000};
     public static int CURRENT_NR_TEST = 0;
     private String[] testCases = { "AABB_TD_median", "AABB_TD_SAH", "AABB_insertion_SAH", "controller_unoptimised", "controller_SAT", "controller_boundingSpheres" };
     public static int CURRENT_CONTROLLER_TEST = 0;
@@ -63,12 +63,12 @@ namespace OBB_CD_Comparison.src
         we.Reset();
       switch (CURRENT_CONTROLLER_TEST)
       {
-        case 0: controller = new AABBTree(); WorldEntity.UseBoundingCircle = true; break;
-        case 1: controller.VERSION_USED++; WorldEntity.UseBoundingCircle = true; break;
-        case 2: controller.VERSION_USED++; WorldEntity.UseBoundingCircle = true; break;
-        case 3: controller = new Controller(entities); WorldEntity.UseBoundingCircle = false; break;
-        case 4: controller.VERSION_USED++; WorldEntity.UseBoundingCircle = false; break;
-        case 5: controller.VERSION_USED++; WorldEntity.UseBoundingCircle = true; break;
+        case 0: controller = new AABBTree(); controller.VERSION_USED = 0; WorldEntity.UseBoundingCircle = true; break;
+        case 1: controller = new AABBTree(); controller.VERSION_USED = 1; WorldEntity.UseBoundingCircle = true; break;
+        case 2: controller = new AABBTree(); controller.VERSION_USED = 2; WorldEntity.UseBoundingCircle = true; break;
+        case 3: controller = new Controller(entities); controller.VERSION_USED = 0; WorldEntity.UseBoundingCircle = false; break;
+        case 4: controller = new Controller(entities); controller.VERSION_USED = 1; WorldEntity.UseBoundingCircle = false; break;
+        case 5: controller = new Controller(entities); controller.VERSION_USED = 2; WorldEntity.UseBoundingCircle = true; break;
         default: game.Exit(); break;
       }
     }
@@ -101,7 +101,7 @@ namespace OBB_CD_Comparison.src
         if (CURRENT_NR_TEST == nrOfEntities.Length)
         {
           CURRENT_NR_TEST = 0;
-          if (++CURRENT_CONTROLLER_TEST == 6)
+          if (++CURRENT_CONTROLLER_TEST == CURRENT_CONTROLLER_TEST)//6
             game.Exit();
           else
             LoadController();
