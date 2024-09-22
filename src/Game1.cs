@@ -80,12 +80,15 @@ namespace OBB_CD_Comparison.src
             //performanceMeasurer = new PerformanceMeasurer();
             //meanSquareError = new MeanSquareError(returnedList.ToArray());
             //meanSquareError.LoadPreviousPositions();
+
         }
 
         protected override void Update(GameTime gameTime)
         {
             //UpdateRunning(gameTime);
             //UpdateDeterministic(gameTime);
+
+            this.SuppressDraw();
             tests.Update(gameTime);
             base.Update(gameTime);
         }
