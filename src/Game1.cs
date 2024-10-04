@@ -130,14 +130,14 @@ namespace OBB_CD_Comparison.src
             //controllerTree.Draw(_spriteBatch);
             //controller.Draw(_spriteBatch);
             _spriteBatch.End();
-            base.Draw(gameTime);*/
+            base.Draw(gameTime);
         }
 
         protected override void OnExiting(object sender, EventArgs args)
         {
             //performanceMeasurer.Exit();
             //meanSquareError.Exit();
-            base.OnExiting(sender, args);
+            base.OnExiting(sender, args);*/
         }
     }
 }

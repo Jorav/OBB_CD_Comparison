@@ -48,7 +48,7 @@ namespace OBB_CD_Comparison.src
         {
             PreviousPosition = Position;
             if (Controller != null)
-                //AdjustPosition();
+                AdjustPosition();
             if (AutoAdjustZoom)
             {
                 //AdjustZoom(GameZoom);

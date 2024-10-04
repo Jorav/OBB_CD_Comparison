@@ -63,9 +63,9 @@ namespace OBB_CD_Comparison.src
         we.Reset();
       switch (CURRENT_CONTROLLER_TEST)
       {
-        case 0: controller = new AABBTree(); controller.VERSION_USED = 0; WorldEntity.UseBoundingCircle = true; break;
-        case 1: controller = new AABBTree(); controller.VERSION_USED = 1; WorldEntity.UseBoundingCircle = true; break;
-        case 2: controller = new AABBTree(); controller.VERSION_USED = 2; WorldEntity.UseBoundingCircle = true; break;
+        case 0: controller = new AABBTree(); controller.VERSION_USED = 0; WorldEntity.UseBoundingCircle = false; break;
+        case 1: controller = new AABBTree(); controller.VERSION_USED = 1; WorldEntity.UseBoundingCircle = false; break;
+        case 2: controller = new AABBTree(); controller.VERSION_USED = 2; WorldEntity.UseBoundingCircle = false; break;
         case 3: controller = new Controller(entities); controller.VERSION_USED = 0; WorldEntity.UseBoundingCircle = false; break;
         case 4: controller = new Controller(entities); controller.VERSION_USED = 1; WorldEntity.UseBoundingCircle = false; break;
         case 5: controller = new Controller(entities); controller.VERSION_USED = 2; WorldEntity.UseBoundingCircle = true; break;

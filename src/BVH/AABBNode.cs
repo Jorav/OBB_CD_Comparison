@@ -39,7 +39,7 @@ namespace OBB_CD_Comparison.src.BVH
             set
             {
                 worldEntity = value;
-                AABB = new AxisAlignedBoundingBox(worldEntity.OBB);
+                AABB = AxisAlignedBoundingBox.SurroundingAABB(worldEntity.OBB);// new AxisAlignedBoundingBox(worldEntity.OBB);
                 position = worldEntity.Position;
                 radius = WorldEntity.Radius;
                 Count = 1;
@@ -68,6 +68,8 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void RefitBoundingBox()
         {
+            if (AABB != null)
+                BoundingAreaFactory.AABBs.Push(AABB);
             if (children.Count(x => x != null) == 1)
             {
                 if (children[0] != null)
@@ -108,7 +110,7 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void Reset()
         {
-            if(worldEntity == null)
+            if(AABB != null)
                 BoundingAreaFactory.AABBs.Push(AABB);
             AABB = null;
             worldEntity = null;

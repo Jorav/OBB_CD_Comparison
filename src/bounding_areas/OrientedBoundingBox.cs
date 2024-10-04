@@ -61,7 +61,7 @@ namespace OBB_CD_Comparison.src.bounding_areas
             get { return rotation; }
         }
         public float Radius;
-        Vector2[] axes;
+        Vector2[] axes = new Vector2[2];
 
         public OrientedBoundingBox(Vector2 position, float rotation, int width, int height)
         {
@@ -120,7 +120,6 @@ namespace OBB_CD_Comparison.src.bounding_areas
         }
         public Vector2[] GenerateAxes()
         {
-            axes = new Vector2[2];
             axes[0] = new Vector2(UR.X - UL.X, UR.Y - UL.Y);
             axes[1] = new Vector2(UR.X - DR.X, UR.Y - DR.Y);
             return axes;

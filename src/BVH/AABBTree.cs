@@ -81,9 +81,9 @@ namespace OBB_CD_Comparison.src.BVH
 
 
             //step 1: DECIDE WHAT AXIS TO SPLIT
-            AxisAlignedBoundingBox AABB = AxisAlignedBoundingBox.SurroundingAABB(newEntities.ToArray());
+            AxisAlignedBoundingBox AABB = AxisAlignedBoundingBox.SurroundingAABB(newEntities);
             int axis = AxisAlignedBoundingBox.MajorAxis(AABB);
-            BoundingAreaFactory.AABBs.Append(AABB);
+            BoundingAreaFactory.AABBs.Push(AABB);
 
             //step 2: SPLIT ON CHOSEN AXIS
             if (axis == 0)
@@ -123,12 +123,13 @@ namespace OBB_CD_Comparison.src.BVH
                     newEntities.Sort((a, b) => a.Position.X.CompareTo(b.Position.X));
                 else
                     newEntities.Sort((a, b) => a.Position.Y.CompareTo(b.Position.Y));
-                for (int i = 0; i < newEntities.Count - 1; i++)
+                for (int i = 0; i < newEntities.Count-1; i++)
                 {
-                    WorldEntity[] entities = newEntities.ToArray();
-                    AxisAlignedBoundingBox AABB1 = AxisAlignedBoundingBox.SurroundingAABB(entities[0..i]);
+                    List<WorldEntity> entities = newEntities.GetRange(0, i+1);
+                    AxisAlignedBoundingBox AABB1 = AxisAlignedBoundingBox.SurroundingAABB(entities);
                     float cost1 = AABB1.Area;
-                    AxisAlignedBoundingBox AABB2 = AxisAlignedBoundingBox.SurroundingAABB(entities[(i + 1)..(entities.Length - 1)]);
+                    entities = newEntities.GetRange(i+1, newEntities.Count-(i+1));
+                    AxisAlignedBoundingBox AABB2 = AxisAlignedBoundingBox.SurroundingAABB(entities);
                     float cost2 = AABB2.Area;
                     float total = cost1 + cost2;
                     if (total < minCost)
@@ -137,8 +138,8 @@ namespace OBB_CD_Comparison.src.BVH
                         minCost = total;
                         minCostAxis = axis;
                     }
-                    BoundingAreaFactory.AABBs.Append(AABB1);
-                    BoundingAreaFactory.AABBs.Append(AABB2);
+                    BoundingAreaFactory.AABBs.Push(AABB1);
+                    BoundingAreaFactory.AABBs.Push(AABB2);
                 }
             }
 
@@ -177,7 +178,7 @@ namespace OBB_CD_Comparison.src.BVH
             AABBNode bestSibling = root;
             AxisAlignedBoundingBox combinedBest = AxisAlignedBoundingBox.SurroundingAABB(root.AABB,leafNew.AABB);
             float bestCost = combinedBest.Area;
-            BoundingAreaFactory.AABBs.Append(combinedBest);
+            BoundingAreaFactory.AABBs.Push(combinedBest);
             PriorityQueue<AABBNode, float> queue = new();
             queue.Enqueue(root, 0);
 
@@ -192,7 +193,7 @@ namespace OBB_CD_Comparison.src.BVH
                     return bestSibling;
                 AxisAlignedBoundingBox combined = AxisAlignedBoundingBox.SurroundingAABB(currentNode.AABB, leafNew.AABB);
                 float combinedArea = combined.Area;
-                BoundingAreaFactory.AABBs.Append(combined);
+                BoundingAreaFactory.AABBs.Push(combined);
                 float currentCost = combinedArea + inheritedCost;
                 if (currentCost < bestCost)
                 {
@@ -301,8 +302,7 @@ namespace OBB_CD_Comparison.src.BVH
                     {
                         if (child != null)
                         {
-                            if (child.WorldEntity == null)
-                                nodesToRemove.Push(child);
+                            nodesToRemove.Push(child);
                         }
                     }
                     freeNodes.Push(currentNode);
