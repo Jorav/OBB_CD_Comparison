@@ -74,12 +74,12 @@ namespace OBB_CD_Comparison.src.BVH
             {
                 if (children[0] != null)
                 {
-                    AABB = children[0].AABB; //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
+                    AABB = BoundingAreaFactory.CreateAABB(children[0].AABB.UL, (int)Math.Round(children[0].AABB.Width), (int)Math.Round(children[0].AABB.Height)); //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
                     Count = children[0].Count;
                 }
                 else
                 {
-                    AABB = children[1].AABB;
+                    AABB = BoundingAreaFactory.CreateAABB(children[1].AABB.UL, (int)Math.Round(children[1].AABB.Width), (int)Math.Round(children[1].AABB.Height)); //BoundingCircle = new CollidableCircle(children[0].BoundingCircle.Position, children[0].BoundingCircle.Radius);
                     Count = children[1].Count;
                 }
             }
@@ -176,7 +176,10 @@ namespace OBB_CD_Comparison.src.BVH
                 }
                 else
                 {
-                    collissions.Add((this.WorldEntity, node.WorldEntity));
+                    WorldEntity.GenerateAxes();
+                    node.WorldEntity.GenerateAxes();
+                    if(WorldEntity.CollidesWith(node.WorldEntity))
+                        collissions.Add((this.WorldEntity, node.WorldEntity));
                 }
             }
         }

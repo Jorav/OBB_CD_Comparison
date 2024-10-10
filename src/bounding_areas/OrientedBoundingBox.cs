@@ -81,10 +81,10 @@ namespace OBB_CD_Comparison.src.bounding_areas
             bool collides = true;
             //GenerateAxes();
             //r.GenerateAxes();
-            axes = new Vector2[] { axes[0], axes[1], r.axes[0], r.axes[1] };
+            Vector2[] allAxes = new Vector2[] { axes[0], axes[1], r.axes[0], r.axes[1] };
             float[] scalarA = new float[4];
             float[] scalarB = new float[4];
-            foreach (Vector2 axis in axes)
+            foreach (Vector2 axis in allAxes)
             {
                 scalarA[0] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(UL, axis) / axis.LengthSquared()));
                 scalarA[1] = Vector2.Dot(axis, Vector2.Multiply(axis, Vector2.Dot(DL, axis) / axis.LengthSquared()));

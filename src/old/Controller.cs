@@ -60,7 +60,11 @@ namespace OBB_CD_Comparison.src.old
                 List<WorldEntity> oldControllables = Entities;
                 entities = new List<WorldEntity>();
                 foreach (WorldEntity c in newControllables)
+                {
                     Add(c);
+                    if (VERSION_USED > 0)
+                        c.GenerateAxes();
+                }
                 if (Entities.Count == 0)
                 {
                     Entities = oldControllables;
@@ -112,11 +116,6 @@ namespace OBB_CD_Comparison.src.old
 
         public void GetInternalCollissions() //fix this so that worldentities its not n2, but rather you test against the ones which havnt already have been tested (and update collission resolver)
         {
-            if (VERSION_USED > 0)
-            {
-                foreach (WorldEntity we in Entities)
-                    we.GenerateAxes();
-            }
             foreach (WorldEntity c1 in Entities)
             {
                 foreach (WorldEntity c2 in Entities)
@@ -135,7 +134,7 @@ namespace OBB_CD_Comparison.src.old
         }
         public void ResolveInternalCollissions()
         {
-            HashSet<WorldEntity> entities = new();
+            /**HashSet<WorldEntity> entities = new();
             foreach ((WorldEntity, WorldEntity) pair in collissionPairs)
             {
                 entities.Add(pair.Item1);

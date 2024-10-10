@@ -31,7 +31,7 @@
     <EditorConfigFiles Remove="C:\Users\Skuta\Documents\free-time\Programmering\monogame-repos\OBB_CD_Comparison\OBB_CD_Comparison\.editorconfig" />
   </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
-    <Message Text="Restoring dotnet tools" Importance="High" />
+    <Message Text="Restoring dot  net tools" Importance="High" />
     <Exec Command="dotnet tool restore" />
   </Target>
 </Project>

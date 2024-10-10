@@ -6,7 +6,7 @@ namespace OBB_CD_Comparison.src.bounding_areas
 {
     public class AxisAlignedBoundingBox
     {
-        private Vector2 UL { get; set; }
+        public Vector2 UL { get; set; }
         private Vector2 DL { get; set; }
         private Vector2 DR { get; set; }
         private Vector2 UR { get; set; }
@@ -97,28 +97,6 @@ namespace OBB_CD_Comparison.src.bounding_areas
             return BoundingAreaFactory.CreateAABB(new Vector2(minX, minY), (int)Math.Round(maxX - minX), (int)Math.Round(maxY - minY));
         }
 
-        public static AxisAlignedBoundingBox SurroundingAABB(OrientedBoundingBox[] OBBs)
-        {
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
-            foreach (OrientedBoundingBox OBB in OBBs)
-            {
-                (float, float) maxXY = OBB.MaxXY;
-                (float, float) minXY = OBB.MinXY;
-                if (maxXY.Item1 > maxX)
-                    maxX = maxXY.Item1;
-                if (minXY.Item1 < minX)
-                    minX = minXY.Item1;
-                if (maxXY.Item2 > maxY)
-                    maxY = maxXY.Item2;
-                if (minXY.Item2 < minY)
-                    minY = minXY.Item2;
-            }
-            return BoundingAreaFactory.CreateAABB(new Vector2(minX, minY), (int)Math.Round(maxX - minX), (int)Math.Round(maxY - minY));
-        }
-
         public static AxisAlignedBoundingBox SurroundingAABB(OrientedBoundingBox OBB)
         {
             (float, float) maxXY = OBB.MaxXY;
@@ -134,16 +112,20 @@ namespace OBB_CD_Comparison.src.bounding_areas
         {
             (float, float) diffXY = (AABB.MaxXY.Item1-AABB.MinXY.Item1, AABB.MaxXY.Item2 - AABB.MinXY.Item2);
             if(diffXY.Item1>=diffXY.Item2)
-                return 0;
-            return 1;
+                return 0; //x
+            return 1; //y
         }
 
         public bool CollidesWith(AxisAlignedBoundingBox AABB)
         {
+            if (MaxXY.Item1 < AABB.MinXY.Item1 || MinXY.Item1 > AABB.MaxXY.Item1) return false;
+            if (MaxXY.Item2 < AABB.MinXY.Item2 || MinXY.Item2 > AABB.MaxXY.Item2) return false;
+            return true;
+/*
             return UL.X < AABB.UL.X + AABB.Width &&
                     UL.X + Width > AABB.UL.X &&
                     UL.Y < AABB.UL.Y + AABB.Height &&
-                    UL.Y + Height > AABB.UL.Y;
+                    UL.Y + Height > AABB.UL.Y;*/
         }
 
         /*public static AxisAlignedBoundingBox SurroundingAABB_sorted(WorldEntity[] worldEntities)

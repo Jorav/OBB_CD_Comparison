@@ -262,23 +262,10 @@ namespace OBB_CD_Comparison.src.BVH
 
         public void ResolveInternalCollissions()
         {
-            /*HashSet<WorldEntity> entities = new();
             foreach ((WorldEntity, WorldEntity) pair in CollissionPairs)
             {
-                entities.Add(pair.Item1);
-                entities.Add(pair.Item2);
-            }
-            foreach (WorldEntity we in entities)
-                we.GenerateAxes();*/
-            foreach ((WorldEntity, WorldEntity) pair in CollissionPairs)
-            {
-                pair.Item1.GenerateAxes();
-                pair.Item2.GenerateAxes(); 
-                if (pair.Item1.CollidesWith(pair.Item2))
-                {
                     pair.Item1.Collide(pair.Item2);
                     pair.Item2.Collide(pair.Item1);
-                }
             }
             CollissionPairs.Clear();
         }

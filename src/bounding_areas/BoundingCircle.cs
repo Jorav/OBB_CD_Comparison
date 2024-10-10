@@ -16,20 +16,26 @@ namespace OBB_CD_Comparison.src.bounding_areas
             Position = position;
             Radius = radius;
         }
+    /**
+        public BoundingCircle CombinedBoundingCircle(List<BoundingCircle> BCs){
+            foreach(BoundingCircle BC in BCs){
 
-        public BoundingCircle CombinedBoundingCircle(BoundingCircle cOther)
+            }
+        }*/
+
+        public static BoundingCircle SurroundingBC(BoundingCircle BC, BoundingCircle BCOther)
         {
             BoundingCircle largestCircle;
             BoundingCircle smallestCircle;
-            if(Radius > cOther.Radius)
+            if(BC.Radius > BCOther.Radius)
             {
-                largestCircle = this;
-                smallestCircle = cOther;
+                largestCircle = BC;
+                smallestCircle = BCOther;
             }
             else
             {
-                largestCircle = cOther;
-                smallestCircle = this;
+                largestCircle = BCOther;
+                smallestCircle = BC;
             }
             Vector2 smallestToLargest = largestCircle.Position-smallestCircle.Position;
             float distance = smallestToLargest.Length();
